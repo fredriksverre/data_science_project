@@ -35,3 +35,23 @@ datagull
 
 =======
 >>>>>>> 8ec1b61e6d28a261efd20d58d87e245b2a41c051
+
+##her
+
+library(httr)
+
+key = "a6a6478d2dmsha4f18475fb193c4p183012jsna7dfda1107f2" 
+
+url = "https://gold-price1.p.rapidapi.com/get_price/USD" 
+
+result = GET(url, add_headers("X-RapidAPI-Key" = key)) 
+
+content(result)
+
+headers(result)
+str(content(result))
+
+datagull = fromJSON(rawToChar(result$content))
+names(datagull)
+ji<-as.data.frame(datagull)
+str(ji)
