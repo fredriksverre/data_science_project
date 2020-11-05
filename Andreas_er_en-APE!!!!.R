@@ -8,21 +8,27 @@
 
 # https://metals-api.com/api/latest
 
-access_key = okrh96bifqusv5w65rpj6w3cs223gf570bs57akec4j4r03aucdze0yjlqkl
+library(tidyverse)
+library(httr)
+library(jsonlite)
 
-https://metals-api.com/api/YYYY-MM-DD
-
-https://metals-api.com/api/convert
-
-? access_key = YOUR_ACCESS_KEY
-& from = USD
-& to = EUR
-& amount = 25
-
-// append an additional "date" parameter if you want to use
-// historical rates for your conversion
-& date = YYYY-MM-DD
+Apigull<-GET("https://metals-api.com/api/latest?access_key=okrh96bifqusv5w65rpj6w3cs223gf570bs57akec4j4r03aucdze0yjlqkl")
 
 
-Hei
+{
+  access_key = "okrh96bifqusv5w65rpj6w3cs223gf570bs57akec4j4r03aucdze0yjlqkl"
+  start_date = 2000-01-01
+  end_date = 2001-01-01
+  base = "USD"
+  symbols = "XAU"
+}
+
+headers(Apigull)
+str(content(Apigull))
+
+datagull = fromJSON(rawToChar(Apigull$content))
+names(datagull)
+datagull[["rates"]][["XAU"]]
+datagull
+
 
