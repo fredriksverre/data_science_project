@@ -3,6 +3,7 @@
 #oppdatert....
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 YOL3--- 
 =======
 YOLOOOOO 
@@ -10,3 +11,9 @@ YOLOOOOO
 
 
 funker dette ???
+=======
+YOLOOOOO 
+
+
+read.csv(Fredriklikertis)
+>>>>>>> f06b8deae486b4f5922d7dd9e89370c167204f21
