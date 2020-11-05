@@ -31,4 +31,7 @@ names(datagull)
 datagull[["rates"]][["XAU"]]
 datagull
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 8ec1b61e6d28a261efd20d58d87e245b2a41c051
