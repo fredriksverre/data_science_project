@@ -3,3 +3,6 @@
 #oppdatert....
 
 YOLOOOOO 
+
+
+read.csv(Fredriklikertis)
