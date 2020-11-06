@@ -10,48 +10,26 @@
 
 library(tidyverse)
 library(httr)
-library(jsonlite)
-
-Apigull<-GET("https://metals-api.com/api/latest?access_key=okrh96bifqusv5w65rpj6w3cs223gf570bs57akec4j4r03aucdze0yjlqkl")
+library(readr)
 
 
-{
-  access_key = "okrh96bifqusv5w65rpj6w3cs223gf570bs57akec4j4r03aucdze0yjlqkl"
-  start_date = 2000-01-01
-  end_date = 2001-01-01
-  base = "USD"
-  symbols = "XAU"
-}
+NG_F <- read_csv("NG=F (1).csv",
+                 col_types = cols_only(Close = col_number(),
+                                       Date = col_date(format = "%Y-%m-%d")))
+GC_F <- read_csv("GC=F.csv",col_types = cols_only(Close = col_number(),
+                                                  Date = col_date(format = "%Y-%m-%d")))
+BZ_F <- read_csv("BZ=F.csv",col_types = cols_only(Close = col_number(),
+                                                  Date = col_date(format = "%Y-%m-%d")))
+X_VIX <- read_csv("^VIX.csv", col_types = cols_only(Close = col_number(),
+                                                    Date = col_date(format = "%Y-%m-%d")))
+ETH_USD <- read_csv("ETH-USD (3).csv",col_types = cols_only(Close = col_guess(), 
+                                             Date = col_date(format = "%Y-%m-%d")))
 
-headers(Apigull)
-str(content(Apigull))
+NG_F<- NG_F %>%mutate(Stock="Natural_gas")
+GC_F <- GC_F %>%mutate(Stock="Gold")
+BZ_F <- BZ_F %>%mutate(Stock="Natural_gas")
+X_VIX  <- X_VIX  %>%mutate(Stock="Brent_olje")
+ETH_USD <- ETH_USD %>%mutate(Stock="Ethereum")
 
-datagull = fromJSON(rawToChar(Apigull$content))
-names(datagull)
-datagull[["rates"]][["XAU"]]
-datagull
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 8ec1b61e6d28a261efd20d58d87e245b2a41c051
-
-##her
-
-library(httr)
-
-key = "a6a6478d2dmsha4f18475fb193c4p183012jsna7dfda1107f2" 
-
-url = "https://gold-price1.p.rapidapi.com/get_price/USD" 
-
-result = GET(url, add_headers("X-RapidAPI-Key" = key)) 
-
-content(result)
-
-headers(result)
-str(content(result))
-
-datagull = fromJSON(rawToChar(result$content))
-names(datagull)
-ji<-as.data.frame(datagull)
-str(ji)
+Alldata<- bind_rows(NG_F,GC_F,BZ_F,X_VIX,ETH_USD ) 
