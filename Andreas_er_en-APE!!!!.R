@@ -25,14 +25,11 @@ X_VIX <- read_csv("^VIX.csv", col_types = cols_only(Close = col_number(),
 ETH_USD <- read_csv("ETH-USD (3).csv",col_types = cols_only(Close = col_guess(), 
                                              Date = col_date(format = "%Y-%m-%d")))
 
-<<<<<<< HEAD
 NG_F<- NG_F %>%mutate(Stock="Natural_gas")
 GC_F <- GC_F %>%mutate(Stock="Gold")
-BZ_F <- BZ_F %>%mutate(Stock="Natural_gas")
-X_VIX  <- X_VIX  %>%mutate(Stock="Brent_olje")
+BZ_F <- BZ_F %>%mutate(Stock="Brent_olje")
+X_VIX  <- X_VIX  %>%mutate(Stock="VIX")
 ETH_USD <- ETH_USD %>%mutate(Stock="Ethereum")
 
 
 Alldata<- bind_rows(NG_F,GC_F,BZ_F,X_VIX,ETH_USD ) 
-=======
->>>>>>> e9c7d1a45d73f890e87449d03ca9d46747d1adc4
