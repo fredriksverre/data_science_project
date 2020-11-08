@@ -65,7 +65,7 @@ Alldata %>%
   ggplot(aes(x=Date, y=Close, group=Asset), log10("y")) +
   geom_line(aes(color=Asset))+
   ylab(expression("Tissen til Alf er stor")) +
-  xlab("Daglige kurser") +
+  xlab("Månedlige kurser") +
   labs(title = "",
        subtitle = "",
        caption = "")
