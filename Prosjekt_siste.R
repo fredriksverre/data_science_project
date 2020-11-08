@@ -75,14 +75,6 @@ Alldata %>%
        subtitle = "",
        caption = "")
 
-ETH %>% 
-  ggplot(aes(x=Date, y=Price, group=Asset), log10(y)) +
-  geom_line(aes(color=Asset))+
-  ylab(expression("Price in USD")) +
-  xlab("Daily") +
-  labs(title = "",
-       subtitle = "",
-       caption = "")
 
 ## Mulig vi må ha ukentlig pris
 
