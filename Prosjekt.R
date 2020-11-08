@@ -1,7 +1,7 @@
 #Linker Kilder
 
 #Bitcoin
-#https://finance.yahoo.com/quote/BTC-USD/history?period1=1446768000&period2=1604620800&interval=1d&filter=history&frequency=1d&includeAdjustedClose=true
+#https://finance.yahoo.com/quote/BTC-USD/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
 
 #Ethereum
 #https://finance.yahoo.com/quote/ETH-USD/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
@@ -26,7 +26,7 @@ library(tidyverse)
 library(httr)
 library(readr)
 
-
+# Alle data settene er på "månedelige intervaller". Tror vi får en mer presis graf om vi tar daglige observasjoner?
 BTC_USD <- read_csv("BTC-USD.csv",
                     col_types = cols_only(Close = col_number(),
                                           Date = col_date(format = "%Y-%m-%d")))
