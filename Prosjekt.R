@@ -1,5 +1,8 @@
 #Linker Kilder
 
+# BTC Daglig
+#https://cointelegraph.com/bitcoin-price-index
+
 #Bitcoin
 #https://finance.yahoo.com/quote/BTC-USD/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
 
@@ -27,6 +30,25 @@ library(httr)
 library(readr)
 
 # Alle data settene er på "månedelige intervaller". Tror vi får en mer presis graf om vi tar daglige observasjoner?
+
+library(quantmod)
+
+getSymbols("ETH-USD",src="yahoo")
+
+qqq.data <- getSymbols("ETH-USD", auto.assign=FALSE, from="2016-01-01", src='yahoo')
+
+qqq.data <- zoo::fortify.zoo(qqq.data)
+
+str(qqq.data)
+
+
+
+#BTC <-read.csv("https://finance.yahoo.com/quote/BTC-USD/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true")
+
+BTC_daily <- read_csv("amCharts.csv",
+                      col_types = cols_only(close = col_number(),
+                                            date = col_date(format = "%Y-%m-%d %H:%M:%S")))
+
 BTC_USD <- read_csv("BTC-USD.csv",
                     col_types = cols_only(Close = col_number(),
                                           Date = col_date(format = "%Y-%m-%d")))
@@ -42,8 +64,10 @@ X_VIX <- read_csv("^VIX.csv", col_types = cols_only(Close = col_number(),
                                                     Date = col_date(format = "%Y-%m-%d")))
 ETH_USD <- read_csv("ETH-USD (3).csv",col_types = cols_only(Close = col_guess(), 
                                              Date = col_date(format = "%Y-%m-%d")))
-SP500 <- read_csv("^GSPC.csv",col_types = cols_only(Close = col_guess(), 
-                                                            Date = col_date(format = "%Y-%m-%d")))
+SP500 <- read_csv("^GSPC.csv",col_types = cols_only(Close = col_guess(),
+                                                    Date = col_date(format = "%Y-%m-%d"))) 
+     
+BTC_daily <- BTC_daily %>%mutate(Asset ="Bitcoin_daily") %>% rename(Close="close", Date="date")                                                                                                            
 BTC_USD <- BTC_USD %>%mutate(Asset ="Bitcoin")
 #NG_F<- NG_F %>%mutate(Stock="Natural_gas")
 GC_F <- GC_F %>%mutate(Asset ="Gold")
@@ -52,7 +76,7 @@ X_VIX  <- X_VIX  %>%mutate(Asset ="VIX")
 ETH_USD <- ETH_USD %>%mutate(Asset ="Ethereum")
 SP500 <- SP500 %>%mutate(Asset ="S&P_500")
 
-Alldata<- bind_rows(BTC_USD,GC_F,BZ_F,X_VIX,ETH_USD,SP500) 
+Alldata<- bind_rows(BTC_daily,BTC_USD,GC_F,BZ_F,X_VIX,ETH_USD,SP500) 
 
 Alldata <- Alldata %>%
   arrange(Asset,Date,) 
@@ -62,11 +86,13 @@ Alldata<-Alldata%>% group_by(Asset)%>% mutate(cumulative = cumsum(Close))
 
 # Ser ingen forskjell når jeg plotter med log10, log eller uten log. Usikker på om den egentlig tar log 
 Alldata %>% 
-  ggplot(aes(x=Date, y=Close, group=Asset), log10("y")) +
+  ggplot(aes(x=Date, y=Close, group=Asset)) +
   geom_line(aes(color=Asset))+
   ylab(expression("Tissen til Alf er stor")) +
   xlab("Månedlige kurser") +
   labs(title = "",
        subtitle = "",
        caption = "")
+
+
 
