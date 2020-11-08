@@ -40,7 +40,7 @@ SP500 <- read_csv("^GSPC.csv",col_types = cols_only(Close = col_guess(),
 
 NG_F<- NG_F %>%mutate(Stock="Natural_gas")
 GC_F <- GC_F %>%mutate(Stock="Gold")
-BZ_F <- BZ_F %>%mutate(Stock="Brent_olje")
+BZ_F <- BZ_F %>%mutate(Stock="Brent_oil")
 X_VIX  <- X_VIX  %>%mutate(Stock="VIX")
 ETH_USD <- ETH_USD %>%mutate(Stock="Ethereum")
 SP500 <-SP500 %>%mutate(Stock="S&P_500")
