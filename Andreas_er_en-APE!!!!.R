@@ -50,3 +50,7 @@ Alldata %>%
        subtitle = "",
        caption = "")
 
+<<<<<<< HEAD
+=======
+Alldata<- bind_rows(NG_F,GC_F,BZ_F,X_VIX,ETH_USD ) 
+>>>>>>> fc875fe597f90896098fdce22932173b6d67ffbd
