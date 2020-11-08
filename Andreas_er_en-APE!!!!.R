@@ -1,12 +1,23 @@
-#Andreas er en treig ape!!!!!
+#Linker Kilder
 
-#oppdatert....
+#Etherium
+#https://finance.yahoo.com/quote/ETH-USD/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
 
-#link: https://ourworldindata.org/
+#gull
+#https://finance.yahoo.com/quote/GC%3DF/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
 
+#natural gas
+#https://finance.yahoo.com/quote/NG%3DF/history?period1=1573032651&period2=1604655051&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
 
+#vix
+#https://finance.yahoo.com/quote/%5EVIX/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
 
-# https://metals-api.com/api/latest
+#brent olje 
+#https://finance.yahoo.com/quote/BZ%3DF/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
+
+#S&P500
+#https://finance.yahoo.com/quote/%5EGSPC/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
+
 
 library(tidyverse)
 library(httr)
@@ -50,7 +61,3 @@ Alldata %>%
        subtitle = "",
        caption = "")
 
-<<<<<<< HEAD
-=======
-Alldata<- bind_rows(NG_F,GC_F,BZ_F,X_VIX,ETH_USD ) 
->>>>>>> fc875fe597f90896098fdce22932173b6d67ffbd
