@@ -67,13 +67,33 @@ Alldata<-Alldata%>% group_by(Asset)%>% mutate(cumulative = cumsum(Price))
 
 # Ser ingen forskjell når jeg plotter med log10, log eller uten log. Usikker på om den egentlig tar log 
 Alldata %>% 
-  ggplot(aes(x=Date, y=Price, group=Asset)) +
+  ggplot(aes(x=Date, y=Price, group=Asset), log10(y)) +
   geom_line(aes(color=Asset))+
   ylab(expression("Price in USD")) +
   xlab("Daily") +
   labs(title = "",
        subtitle = "",
        caption = "")
+
+ETH %>% 
+  ggplot(aes(x=Date, y=Price, group=Asset), log10(y)) +
+  geom_line(aes(color=Asset))+
+  ylab(expression("Price in USD")) +
+  xlab("Daily") +
+  labs(title = "",
+       subtitle = "",
+       caption = "")
+
+## Mulig vi må ha ukentlig pris
+
+cor(BTC$Price, ETH$Price) # Cor på 0.7109
+cor(BTC$Price, SP500$Price) # Incompatible. Why ?? 
+cor(BTC$Price, Gold$Price) # Incompatible. Why ?? 
+
+
+
+
+
 
 
 
