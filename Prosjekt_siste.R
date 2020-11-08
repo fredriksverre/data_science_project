@@ -6,16 +6,13 @@
 #Ethereum
 #https://finance.yahoo.com/quote/ETH-USD/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
 
-#gull
+#Gull
 #https://finance.yahoo.com/quote/GC%3DF/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
 
-#natural gas
-#https://finance.yahoo.com/quote/NG%3DF/history?period1=1573032651&period2=1604655051&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
-
-#vix
+#Vix
 #https://finance.yahoo.com/quote/%5EVIX/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
 
-#brent olje 
+#Brent olje 
 #https://finance.yahoo.com/quote/BZ%3DF/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
 
 #S&P500
@@ -75,9 +72,7 @@ Alldata %>%
        subtitle = "",
        caption = "")
 
-
-## Mulig vi må ha ukentlig pris
-
+#Mulig vi må ha ukentlig pris
 cor(BTC$Price, ETH$Price) # Cor på 0.7109
 cor(BTC$Price, SP500$Price) # Incompatible. Why ?? 
 cor(BTC$Price, Gold$Price) # Incompatible. Why ?? 
