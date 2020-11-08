@@ -1,6 +1,9 @@
 #Linker Kilder
 
-#Etherium
+#Bitcoin
+#https://finance.yahoo.com/quote/BTC-USD/history?period1=1446768000&period2=1604620800&interval=1d&filter=history&frequency=1d&includeAdjustedClose=true
+
+#Ethereum
 #https://finance.yahoo.com/quote/ETH-USD/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
 
 #gull
@@ -24,9 +27,13 @@ library(httr)
 library(readr)
 
 
-NG_F <- read_csv("NG=F (1).csv",
-                 col_types = cols_only(Close = col_number(),
-                                       Date = col_date(format = "%Y-%m-%d")))
+BTC_USD <- read_csv("BTC-USD.csv",
+                    col_types = cols_only(Close = col_number(),
+                                          Date = col_date(format = "%Y-%m-%d")))
+#NG_F <- read_csv("NG=F (1).csv",
+               #  col_types = cols_only(Close = col_number(),
+                                      # Date = col_date(format = "%Y-%m-%d")))
+
 GC_F <- read_csv("GC=F.csv",col_types = cols_only(Close = col_number(),
                                                   Date = col_date(format = "%Y-%m-%d")))
 BZ_F <- read_csv("BZ=F.csv",col_types = cols_only(Close = col_number(),
@@ -37,26 +44,28 @@ ETH_USD <- read_csv("ETH-USD (3).csv",col_types = cols_only(Close = col_guess(),
                                              Date = col_date(format = "%Y-%m-%d")))
 SP500 <- read_csv("^GSPC.csv",col_types = cols_only(Close = col_guess(), 
                                                             Date = col_date(format = "%Y-%m-%d")))
+BTC_USD <- BTC_USD %>%mutate(Asset ="Bitcoin")
+#NG_F<- NG_F %>%mutate(Stock="Natural_gas")
+GC_F <- GC_F %>%mutate(Asset ="Gold")
+BZ_F <- BZ_F %>%mutate(Asset ="Brent_oil")
+X_VIX  <- X_VIX  %>%mutate(Asset ="VIX")
+ETH_USD <- ETH_USD %>%mutate(Asset ="Ethereum")
+SP500 <- SP500 %>%mutate(Asset ="S&P_500")
 
-NG_F<- NG_F %>%mutate(Stock="Natural_gas")
-GC_F <- GC_F %>%mutate(Stock="Gold")
-BZ_F <- BZ_F %>%mutate(Stock="Brent_oil")
-X_VIX  <- X_VIX  %>%mutate(Stock="VIX")
-ETH_USD <- ETH_USD %>%mutate(Stock="Ethereum")
-SP500 <-SP500 %>%mutate(Stock="S&P_500")
-
-Alldata<- bind_rows(NG_F,GC_F,BZ_F,X_VIX,ETH_USD,SP500) 
+Alldata<- bind_rows(BTC_USD,GC_F,BZ_F,X_VIX,ETH_USD,SP500) 
 
 Alldata <- Alldata %>%
-  arrange(Stock,Date,) 
+  arrange(Asset,Date,) 
 
-Alldata<-Alldata%>% group_by(Stock)%>% mutate(cumulative = cumsum(Close))
+Alldata<-Alldata%>% group_by(Asset)%>% mutate(cumulative = cumsum(Close))
 
+
+# Ser ingen forskjell når jeg plotter med log10, log eller uten log. Usikker på om den egentlig tar log 
 Alldata %>% 
-  ggplot(aes(x=Date, y=cumulative,group=Stock)) +
-  geom_line(aes(color=Stock))+
-  ylab(expression("Tissen til Alf er liten")) +
-  xlab("") +
+  ggplot(aes(x=Date, y=Close, group=Asset), log10("y")) +
+  geom_line(aes(color=Asset))+
+  ylab(expression("Tissen til Alf er stor")) +
+  xlab("Daglige kurser") +
   labs(title = "",
        subtitle = "",
        caption = "")
