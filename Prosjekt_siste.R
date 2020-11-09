@@ -25,7 +25,6 @@ library(readr)
 library(quantmod)
 
 # Henter inn finans data fra yahoo
-
 ETH <- getSymbols("ETH-USD", auto.assign=FALSE, from="2016-01-04", src='yahoo')
 BTC <- getSymbols("BTC-USD", auto.assign=FALSE, from="2016-01-04", src='yahoo')
 SP500 <- getSymbols("^GSPC", auto.assign=FALSE, from="2016-01-04", src='yahoo') # Datar starter 04.01.2016
@@ -78,7 +77,9 @@ cor(BTC$Price, SP500$Price) # Incompatible. Why ??
 cor(BTC$Price, Gold$Price) # Incompatible. Why ?? 
 
 
+# Ta log(logaritmen) av dataen, så gjøre det cumulativt for å se prosentvis endring.
 
+# Relativ varians (Risiko), coefficient of variation. Standardavvik
 
 
 
