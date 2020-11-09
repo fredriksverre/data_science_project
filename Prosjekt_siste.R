@@ -77,6 +77,8 @@ cor(BTC$Price, SP500$Price) # Incompatible. Why ??
 cor(BTC$Price, Gold$Price) # Incompatible. Why ?? 
 
 
+# Finner gull og olje data fra en annen side som er brukt i en forelesning.
+
 # Ta log(logaritmen) av dataen, så gjøre det cumulativt for å se prosentvis endring.
 
 # Relativ varians (Risiko), coefficient of variation. Standardavvik
