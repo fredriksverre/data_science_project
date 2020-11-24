@@ -24,6 +24,12 @@ library(readr)
 library(quantmod)
 library(lubridate)
 library(dplyr)
+library(Quandl)
+
+# Getting data from API 
+Gold <-Quandl("LBMA/GOLD", api_key="4TmA83fLoY_UpQJVjVJu", start_date="2016-01-04", end_date="2021-01-01")
+
+Gold <- Gold %>% select("Date", "USD (PM)") %>% rename(Price = "USD (PM)")
 
 # Getting data from yahoo
 ETH <- getSymbols("ETH-USD", auto.assign=FALSE, from="2016-01-04", src='yahoo')
@@ -31,7 +37,7 @@ BTC <- getSymbols("BTC-USD", auto.assign=FALSE, from="2016-01-04", src='yahoo')
 SP500 <- getSymbols("^GSPC", auto.assign=FALSE, from="2016-01-04", src='yahoo') # Datar starter 04.01.2016
 BrentOil <- getSymbols("BZ=F", auto.assign=FALSE, from="2016-01-04", src='yahoo') # Data fra 04.12.2018
 VIX <- getSymbols("^VIX", auto.assign=FALSE, from="2016-01-04", src='yahoo') # Data starter fra 04.01.2016. Mangler observasjoner i volum, men vi har ikke behov for dette
-Gold <- getSymbols("GC=F", auto.assign=FALSE, from="2016-01-04", src='yahoo') # Data starter fra 04.01.2016
+#Gold <- getSymbols("GC=F", auto.assign=FALSE, from="2016-01-04", src='yahoo') # Data starter fra 04.01.2016
 
 # Making data from xts to normal df. Picking columns and renameing.
 ETH <- zoo::fortify.zoo(ETH)
@@ -43,8 +49,8 @@ BTC <- BTC %>% select("Index","BTC-USD.Close") %>% mutate(Asset = "Bitcoin") %>%
 SP500 <- zoo::fortify.zoo(SP500)
 SP500 <- SP500 %>% select("Index","GSPC.Close") %>% mutate(Asset = "S&P500") %>% rename(Date ="Index", Price = "GSPC.Close")
 
-Gold <- zoo::fortify.zoo(Gold)
-Gold <- Gold %>% select("Index","GC=F.Close") %>% mutate(Asset = "Gold") %>% rename(Date ="Index", Price = "GC=F.Close")
+#Gold <- zoo::fortify.zoo(Gold)
+#Gold <- Gold %>% select("Index","GC=F.Close") %>% mutate(Asset = "Gold") %>% rename(Date ="Index", Price = "GC=F.Close")
 
 VIX <- zoo::fortify.zoo(VIX)
 VIX <- VIX %>% select("Index","VIX.Close") %>% mutate(Asset = "VixIndex") %>% rename(Date ="Index", Price = "VIX.Close")
@@ -86,6 +92,7 @@ SP500 <- SP500 %>% rename(Price = "mean") %>% mutate(Asset = "SP500")
 Gold <- na.omit(Gold)
 # 
 Gold$week <- floor_date(Gold$Date, "week")
+
 #
 Gold <- Gold %>%
   group_by(week) %>%
