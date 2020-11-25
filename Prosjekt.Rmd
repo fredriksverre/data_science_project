@@ -17,6 +17,8 @@ library(raster)
 ```
 
 ```{r}
+
+
 #Linker Kilder
 
 #Bitcoin
@@ -37,6 +39,63 @@ library(raster)
 #S&P500
 #https://finance.yahoo.com/quote/%5EGSPC/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
 
+```
+
+Problemstilling: Hvordan har avkastningen til Bitcoin hvert mot andre assets? Kan bitcoin være en safehaven eller en hedge mot dårligere tider?
+
+
+Først begynte vi å lete etter data fra API´er. Vi fant etterhvert ut at dette ikke var så enkelt som vi trodde. En god del API´er koster penger og ikke alle er like enkle i bruk.
+
+Vi fant så frem til yahoo finance å begynte med lastet ned csv filer fra yahoo og så lastet de inn i R. Vi fant etterhvert ut at vi kunne importere filene direkte inn i R ved riktig kode. Dette gjør det mye enklere for alle som skal åpne prosjektet vårt, samtidig som det også gjør at dataen blir dynamisk. 
+
+Data på gull fra yahoo var det store hull i, slik at den kunne vi ikke bruke disse. Vi fant en API som hadde data på gull å valgte å bruke den. 
+
+Dataen vi hente fra yahoo kom i et xts format, som gjør at dato variabelen er i POXEIT format og er noe anerledes en vi er vant til å jobbe med. Vi valgte derfor å bruke zoo pakken til å gjøre daten om til det som er normalt datasett for oss. 
+
+I neste rekke bruker vi dplyr til å pipe dataen. Vi velger kolonner ved select funksjonen da vi ikke trenger alle variablene som følger med dataen. Så velger vi å legge inn en ny variabel som forteller hvilken Asset det gitte datasette er. Dette gjør vi for at vi enkelt skal kunne plotte dataen senere. 
+
+I neste steg gjør vi om dataen fra daglig observasjoner til ukentlige. Vi gjør dette ved hjelp av floor_date funksjonen som gjør at alle observasjoner innen for hver uke blir satt til en lik dato. Feks alle observasjoner i uke 1 får datoen 01.01.2020 og lager ny variabel av dette som vi kaller for week
+
+Deretter piper vi dataen ved group_by funksjonen som gjør at dataen blir groupet med hensyns week variabelen. Dette vil si at hver uke vil bli seperat fra hverandre. Så bruker vi summarize funksjonen for å ta en gjennomsnitt av hver uke. Vi får da en ukentlig gjennomsnitts pris. Må endre navnet i datasette igjen slik at det blir riktig når vi skal gjøre dataen long.
+
+På gull dataen må vi fjerne N/A verdier fra datasettet for å kunne bruke det og gjør dette med omit funkjsonen.
+
+Her tar vi log observasjon1/log observasjon 2. Når vi gjør dette får vi den logaritmiske avkastningen fra uke til uke. Bruke cbind for å gjøre om til datasett igjen. Bruker rbind til å legge inne observasjonen 0 øverst i datasettet fordi at det mangler en observasjon for å kunne cbinde det orginale datasettet med logreturns. 
+
+Så summerer grouperby Asset og summer opp alle log returns med cumsum funksjonen. Vi har nå dataen på cumulativ form slik at vi kan sammenligne avkastningen mellom de forskjellen Assetene.
+
+Vi lager en graf som viser avkastningen til alle Assetene. Vi kan da tydelig se hvem som har hatt størst avkastning siden 2016 av disse Asset klassene, men kommer denne avkastningen uten risiko? 
+
+Hvis vi ser på coefficients of variations kan vi tydelig se at de aktivaene som har hatt høyest avkastning også definitivt har størst risiko knyttet til seg. Disse koeffisienten kan lese slik at de som har minst sum = minst risiko.
+
+coefficients of variations:
+# BTC 72.41231
+# ETH 96.86965
+# Gold 15.16687
+# SP500 15.20827
+
+Her har vi kjørt korrelsasjon mellom Bitcoin og den nevnte Asset klassen nedenfor:
+
+ETH # Cor på 0.7109
+SP500 # Cor på 0.8414708
+Gold Cor på 0.6307463
+
+Ut i fra korrelsasjonen vi har gjørt mellom Bitcoin og andre assets i tidsrommet 2016 til dagens dato er korrelasjonen veldig høy mot SP500. Den korrelerer også høyt med gull men ikke like høyt som mot SP500 index. Slik at ut i fra disse tallene ser det ikke ut som at Bitcoin kan være en hedge eller safeheaven. Dette resultat kan endre seg om vi ser på årene fra 2018-2020 feks. 
+
+Er dataen vi har brukt valid i forhold til statistiske regler? 
+
+Hva er t-staten? 
+signifikans? 
+standardavvik? 
+Andre ting?
+
+
+
+
+
+
+```{r}
+
 
 # Getting data from API 
 Gold <-Quandl("LBMA/GOLD", api_key="4TmA83fLoY_UpQJVjVJu", start_date="2016-01-04", end_date="2021-01-01")
@@ -49,6 +108,7 @@ SP500 <- getSymbols("^GSPC", auto.assign=FALSE, from="2016-01-04", src='yahoo') 
 #BrentOil <- getSymbols("BZ=F", auto.assign=FALSE, from="2016-01-04", src='yahoo') # Data fra 04.12.2018
 VIX <- getSymbols("^VIX", auto.assign=FALSE, from="2016-01-04", src='yahoo') # Data starter fra 04.01.2016. Mangler observasjoner i volum, men vi har ikke behov for dette
 #Gold <- getSymbols("GC=F", auto.assign=FALSE, from="2016-01-04", src='yahoo') # Data starter fra 04.01.2016
+
 
 # Making data from xts to normal df. Picking columns and renameing.
 ETH <- zoo::fortify.zoo(ETH)
@@ -68,6 +128,7 @@ VIX <- VIX %>% select("Index","VIX.Close") %>% mutate(Asset = "VixIndex") %>% re
 
 BrentOil <- zoo::fortify.zoo(BrentOil)
 BrentOil <- BrentOil %>% select("Index","BZ=F.Close") %>% mutate(Asset = "BrentOil") %>% rename(Date ="Index", Price = "BZ=F.Close")
+
 
 # Lager ny variabel som sorterer ukentlig
 BTC$week <- floor_date(BTC$Date, "week")
@@ -118,6 +179,7 @@ VIX <- VIX %>%
   summarize(mean = mean(Price))
 #
 VIX <- VIX %>% rename(Price = "mean") %>% mutate(Asset = "VIX")
+
 
 
 # Making LOG percentage change from day to day
@@ -171,6 +233,8 @@ df <- bind_rows(ETH,BTC,SP500,Gold,VIX) # For store hull i datasettet til gull.
 #df <- df %>%
  # arrange(Asset,Date) 
 
+
+
 # Making log_returns cumulative
 df <- df %>% group_by(Asset)%>% mutate(cumulative = cumsum(log_returns))
 
@@ -193,21 +257,21 @@ cv(SP500$Price)  # SP500 15.20827
 
 # Korrelasjon
 cor(BTC$Price, ETH$Price) # Cor på 0.7109
-cor(BTC$Price, SP500$Price) # 
-cor(BTC$Price, Gold$Price) # 
+cor(BTC$Price, SP500$Price) # 0.8414708
+cor(BTC$Price, Gold$Price) #  0.6307463
 
 #gp = group_by(Asset)
 #dplyr::summarize(gp, cor(a, b))
 
 
-df_regresjon <- cbind(BTC,ETH$Price)
-df_regresjon <- df_regresjon %>% select(Price,`ETH$Price`)
+#df_regresjon <- cbind(BTC,ETH$Price)
+#df_regresjon <- df_regresjon %>% select(Price,`ETH$Price`)
 
-regresjon1 <- lm(Price ~ ETH$Price, data= df_regresjon)
-plot(df_regresjon$Price,df_regresjon$`ETH$Price`, pch = 16, col = "blue") 
-abline(regresjon1)
+#regresjon1 <- lm(Price ~ ETH$Price, data= df_regresjon)
+#plot(df_regresjon$Price,df_regresjon$`ETH$Price`, pch = 16, col = "blue") 
+#abline(regresjon1)
 
-summary(regresjon1)
+#summary(regresjon1)
 
 
 

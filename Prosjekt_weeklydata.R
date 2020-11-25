@@ -174,10 +174,21 @@ df %>%
        subtitle = "",
        caption = "")
 
+# Coefficient of variations
+cv(BTC$Price)    # BTC 72.41231
+cv(ETH$Price)    # ETH 96.86965
+cv(Gold$Price)   # Gold 15.16687
+cv(SP500$Price)  # SP500 15.20827
+
+
 #Mulig vi må ha ukentlig pris
 cor(BTC$Price, ETH$Price) # Cor på 0.7109
 cor(BTC$Price, SP500$Price) # Incompatible. Why ?? 
 cor(BTC$Price, Gold$Price) # Incompatible. Why ?? 
+
+gp = group_by(Asset)
+dplyr::summarize(gp, cor(a, b))
+
 
 df_regresjon <- cbind(BTC,ETH$Price)
 df_regresjon <- df_regresjon %>% select(Price,`ETH$Price`)
@@ -188,17 +199,15 @@ abline(regresjon1)
 
 summary(regresjon1)
 
- 
-cv(BTC$Price)    # BTC 72.41231
-cv(ETH$Price)    # ETH 96.86965
-cv(Gold$Price)   # Gold 15.16687
-cv(SP500$Price)  # SP500 15.20827
 
-# Finner gull og olje data fra en annen side som er brukt i en forelesning.
 
-# Ta log(logaritmen) av dataen, så gjøre det cumulativt for å se prosentvis endring.
 
-# Relativ varians (Risiko), coefficient of variation. Standardavvik
+# Sliter med å finne Olje data.
+
+# Relativ varians (Risiko), coefficient of variation. Hva sier den CV vi har? 
+# CV = sd/mean*100, den sier noe om hvor store svingninger det er i aksjen men ikke noe om avkastning(potential return).
+# Bruke sharp ratio? Hvordan beregne antatt avkastning?
+
 
 
 #lmTemp = lm(Pressure~Temperature, data = pressure) #Create the linear regression
