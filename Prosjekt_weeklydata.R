@@ -25,6 +25,7 @@ library(quantmod)
 library(lubridate)
 library(dplyr)
 library(Quandl)
+library(raster)
 
 # Getting data from API 
 Gold <-Quandl("LBMA/GOLD", api_key="4TmA83fLoY_UpQJVjVJu", start_date="2016-01-04", end_date="2021-01-01")
@@ -35,7 +36,7 @@ Gold <- Gold %>% select("Date", "USD (PM)") %>% rename(Price = "USD (PM)")
 ETH <- getSymbols("ETH-USD", auto.assign=FALSE, from="2016-01-04", src='yahoo')
 BTC <- getSymbols("BTC-USD", auto.assign=FALSE, from="2016-01-04", src='yahoo')
 SP500 <- getSymbols("^GSPC", auto.assign=FALSE, from="2016-01-04", src='yahoo') # Datar starter 04.01.2016
-BrentOil <- getSymbols("BZ=F", auto.assign=FALSE, from="2016-01-04", src='yahoo') # Data fra 04.12.2018
+#BrentOil <- getSymbols("BZ=F", auto.assign=FALSE, from="2016-01-04", src='yahoo') # Data fra 04.12.2018
 VIX <- getSymbols("^VIX", auto.assign=FALSE, from="2016-01-04", src='yahoo') # Data starter fra 04.01.2016. Mangler observasjoner i volum, men vi har ikke behov for dette
 #Gold <- getSymbols("GC=F", auto.assign=FALSE, from="2016-01-04", src='yahoo') # Data starter fra 04.01.2016
 
@@ -92,13 +93,21 @@ SP500 <- SP500 %>% rename(Price = "mean") %>% mutate(Asset = "SP500")
 Gold <- na.omit(Gold)
 # 
 Gold$week <- floor_date(Gold$Date, "week")
-
 #
 Gold <- Gold %>%
   group_by(week) %>%
   summarize(mean = mean(Price))
 #
 Gold <- Gold %>% rename(Price = "mean") %>% mutate(Asset = "Gold")
+
+# 
+VIX$week <- floor_date(VIX$Date, "week")
+#
+VIX <- VIX %>%
+  group_by(week) %>%
+  summarize(mean = mean(Price))
+#
+VIX <- VIX %>% rename(Price = "mean") %>% mutate(Asset = "VIX")
 
 
 # Making LOG percentage change from day to day
@@ -137,8 +146,17 @@ log_returns <- rbind(0,log_returns)
 
 Gold <- cbind(Gold, log_returns)
 
+#
+log_returns <- diff(log(VIX$Price), lag=1)
+
+log_returns <- cbind(log_returns)
+
+log_returns <- rbind(0,log_returns)
+
+VIX <- cbind(VIX, log_returns)
+
 # Making data long
-df <- bind_rows(ETH,BTC,SP500,Gold) # For store hull i datasettet til gull.
+df <- bind_rows(ETH,BTC,SP500,Gold,VIX) # For store hull i datasettet til gull.
 
 #df <- df %>%
  # arrange(Asset,Date) 
@@ -157,24 +175,62 @@ df %>%
        caption = "")
 
 #Mulig vi må ha ukentlig pris
-cor(BTC$mean, ETH$mean) # Cor på 0.7109
-cor(BTC$mean, SP500$mean) # Incompatible. Why ?? 
+cor(BTC$Price, ETH$Price) # Cor på 0.7109
+cor(BTC$Price, SP500$Price) # Incompatible. Why ?? 
 cor(BTC$Price, Gold$Price) # Incompatible. Why ?? 
 
-df_regresjon <- cbind(BTC,ETH$Price,Gold$Price,SP500$Price)
-
-regresjon <- lm(Price ~ ETH$Price + Gold$Price + SP500$Price, data= df_regresjon)
+df_regresjon <- cbind(BTC,ETH$Price)
+df_regresjon <- df_regresjon %>% select(Price,`ETH$Price`)
 
 regresjon1 <- lm(Price ~ ETH$Price, data= df_regresjon)
+plot(df_regresjon$Price,df_regresjon$`ETH$Price`, pch = 16, col = "blue") 
+abline(regresjon1)
 
 summary(regresjon1)
 
+ 
+cv(BTC$Price)    # BTC 72.41231
+cv(ETH$Price)    # ETH 96.86965
+cv(Gold$Price)   # Gold 15.16687
+cv(SP500$Price)  # SP500 15.20827
 
 # Finner gull og olje data fra en annen side som er brukt i en forelesning.
 
 # Ta log(logaritmen) av dataen, så gjøre det cumulativt for å se prosentvis endring.
 
 # Relativ varians (Risiko), coefficient of variation. Standardavvik
+
+
+#lmTemp = lm(Pressure~Temperature, data = pressure) #Create the linear regression
+#plot(pressure, pch = 10, col = "blue") #Plot the results
+#abline(lmTemp) #Add a regression line
+
+#coefficient of variation
+#mean(BTC$Price)
+#sd(BTC$Price)
+#
+#mean(ETH$Price)
+#sd(ETH$Price)
+#
+#mean(Gold$Price)
+#sd(Gold$Price)
+#
+#mean(SP500$Price)
+#sd(SP500$Price)
+
+# Making a function to calculate coefficient of variation
+#CV <- function(mean, sd){
+#  (sd/mean)*100
+#}
+
+# Coefficient of variations
+#CV(mean = 5851.609, sd = 4237.285) 
+
+#CV(mean = 234.6097, sd = 227.2656) 
+
+#CV(mean = 1379.591, sd = 209.2408) 
+
+#CV(mean = 2665.762, sd = 405.4164)
 
 
 
