@@ -23,9 +23,9 @@ library(httr)
 library(readr)
 library(quantmod)
 library(lubridate)
-library(dplyr)
+#library(dplyr)
 library(Quandl)
-library(raster)
+#library(raster)
 
 # Getting data from API 
 Gold <-Quandl("LBMA/GOLD", api_key="4TmA83fLoY_UpQJVjVJu", start_date="2016-01-04", end_date="2021-01-01")
@@ -227,15 +227,17 @@ summary(regresjon1)
 #mean(SP500$Price)
 #sd(SP500$Price)
 
+summary(BTC)
+summary(ETH)
 # Making a function to calculate coefficient of variation
 #CV <- function(mean, sd){
-#  (sd/mean)*100
+ # (sd/mean)*100
 #}
 
 # Coefficient of variations
 #CV(mean = 5851.609, sd = 4237.285) 
 
-#CV(mean = 234.6097, sd = 227.2656) 
+#CV(mean = 200.6097, sd = 227.2656) 
 
 #CV(mean = 1379.591, sd = 209.2408) 
 
