@@ -23,7 +23,6 @@ library(httr)
 library(readr)
 library(quantmod)
 library(lubridate)
-#library(dplyr)
 library(Quandl)
 #library(raster)
 
@@ -175,10 +174,10 @@ df %>%
        caption = "")
 
 # Coefficient of variations
-cv(BTC$Price)    # BTC 72.41231
-cv(ETH$Price)    # ETH 96.86965
-cv(Gold$Price)   # Gold 15.16687
-cv(SP500$Price)  # SP500 15.20827
+raster::cv(BTC$Price)    # BTC 72.41231
+raster::cv(ETH$Price)    # ETH 96.86965
+raster::cv(Gold$Price)   # Gold 15.16687
+raster::cv(SP500$Price)  # SP500 15.20827
 
 
 #Mulig vi må ha ukentlig pris
