@@ -1,6 +1,15 @@
+
 ---
-title: "Prosjekt"
-output: html_document
+title: "A closer look at Bitcoin"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    collapsed: false
+    smooth_scroll: false
+    toc_depth: 3
+runtime: shiny
+date: "`r format(Sys.time(), '%d %B %Y')`"
 ---
 
 ```{r setup, include=FALSE}
@@ -14,40 +23,26 @@ library(lubridate)
 library(Quandl)
 #library(raster)
 
-
+## Problemstilling: Hvordan har avkastningen til Bitcoin hvert mot andre assets? Kan bitcoin være en safehaven eller en hedge mot dårligere tider?
 ```
 
-```{r}
+&nbsp;
+&nbsp;
+&nbsp;
 
+## BTC
 
-#Linker Kilder
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
 
-#Bitcoin
-#https://finance.yahoo.com/quote/BTC-USD/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
-
-#Ethereum
-#https://finance.yahoo.com/quote/ETH-USD/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
-
-#Gull
-#https://finance.yahoo.com/quote/GC%3DF/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
-
-#Vix
-#https://finance.yahoo.com/quote/%5EVIX/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
-
-#Brent olje 
-#https://finance.yahoo.com/quote/BZ%3DF/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
-
-#S&P500
-#https://finance.yahoo.com/quote/%5EGSPC/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
-
-```
-
-Problemstilling: Hvordan har avkastningen til Bitcoin hvert mot andre assets? Kan bitcoin være en safehaven eller en hedge mot dårligere tider?
-
-
-Først begynte vi å lete etter data fra API´er. Vi fant etterhvert ut at dette ikke var så enkelt som vi trodde. En god del API´er koster penger og ikke alle er like enkle i bruk.
+Det første vi tok for oss når vi startetet prosjektet var å lete etter data fra API´er. Vi fant etterhvert ut at dette ikke var så enkelt som vi trodde. En god del API´er koster penger og ikke alle er like enkle i bruk.
 
 Vi fant så frem til yahoo finance å begynte med lastet ned csv filer fra yahoo og så lastet de inn i R. Vi fant etterhvert ut at vi kunne importere filene direkte inn i R ved riktig kode. Dette gjør det mye enklere for alle som skal åpne prosjektet vårt, samtidig som det også gjør at dataen blir dynamisk. 
+
+
+
 
 Data på gull fra yahoo var det store hull i, slik at den kunne vi ikke bruke disse. Vi fant en API som hadde data på gull å valgte å bruke den. 
 
@@ -55,25 +50,27 @@ Dataen vi hente fra yahoo kom i et xts format, som gjør at dato variabelen er i
 
 I neste rekke bruker vi dplyr til å pipe dataen. Vi velger kolonner ved select funksjonen da vi ikke trenger alle variablene som følger med dataen. Så velger vi å legge inn en ny variabel som forteller hvilken Asset det gitte datasette er. Dette gjør vi for at vi enkelt skal kunne plotte dataen senere. 
 
-I neste steg gjør vi om dataen fra daglig observasjoner til ukentlige. Vi gjør dette ved hjelp av floor_date funksjonen som gjør at alle observasjoner innen for hver uke blir satt til en lik dato. Feks alle observasjoner i uke 1 får datoen 01.01.2020 og lager ny variabel av dette som vi kaller for week
+I neste steg gjør vi om dataen fra daglig observasjoner til ukentlige. Vi gjør dette ved hjelp av "floor_date" funksjonen som gjør at alle observasjoner innen for hver uke blir satt til en lik dato. Feks alle observasjoner i uke 1 får datoen 01.01.2020 og lager ny variabel av dette som vi kaller for week
 
-Deretter piper vi dataen ved group_by funksjonen som gjør at dataen blir groupet med hensyns week variabelen. Dette vil si at hver uke vil bli seperat fra hverandre. Så bruker vi summarize funksjonen for å ta en gjennomsnitt av hver uke. Vi får da en ukentlig gjennomsnitts pris. Må endre navnet i datasette igjen slik at det blir riktig når vi skal gjøre dataen long.
+Deretter piper vi dataen ved group_by funksjonen som gjør at dataen blir groupet med hensyns week variabelen. Dette vil si at hver uke vil bli seperat fra hverandre. Så bruker vi summarize funksjonen for å ta et gjennomsnitt av hver uke. Vi får da en ukentlig gjennomsnitts pris. Må endre navnet i datasette igjen slik at det blir riktig når vi skal gjøre dataen long.
 
-På gull dataen må vi fjerne N/A verdier fra datasettet for å kunne bruke det og gjør dette med omit funkjsonen.
+På gull dataen må vi fjerne N/A verdier fra datasettet for å kunne bruke det og gjør dette med "omit" funkjsonen.
 
 Her tar vi log observasjon1/log observasjon 2. Når vi gjør dette får vi den logaritmiske avkastningen fra uke til uke. Bruke cbind for å gjøre om til datasett igjen. Bruker rbind til å legge inne observasjonen 0 øverst i datasettet fordi at det mangler en observasjon for å kunne cbinde det orginale datasettet med logreturns. 
 
 Så summerer grouperby Asset og summer opp alle log returns med cumsum funksjonen. Vi har nå dataen på cumulativ form slik at vi kan sammenligne avkastningen mellom de forskjellen Assetene.
+
+### Konklusjon
 
 Vi lager en graf som viser avkastningen til alle Assetene. Vi kan da tydelig se hvem som har hatt størst avkastning siden 2016 av disse Asset klassene, men kommer denne avkastningen uten risiko? 
 
 Hvis vi ser på coefficients of variations kan vi tydelig se at de aktivaene som har hatt høyest avkastning også definitivt har størst risiko knyttet til seg. Disse koeffisienten kan lese slik at de som har minst sum = minst risiko.
 
 coefficients of variations:
-# BTC 72.41231
-# ETH 96.86965
-# Gold 15.16687
-# SP500 15.20827
+ BTC 72.41231
+ ETH 96.86965
+ Gold 15.16687
+ SP500 15.20827
 
 Her har vi kjørt korrelsasjon mellom Bitcoin og den nevnte Asset klassen nedenfor:
 
@@ -95,9 +92,9 @@ Andre ting?
 
 
 
-```{r}
+```{r message=FALSE, echo=FALSE}
 
-
+### Data
 # Getting data from API 
 Gold <-Quandl("LBMA/GOLD", api_key="4TmA83fLoY_UpQJVjVJu", start_date="2016-01-04", end_date="2021-01-01")
 Gold <- Gold %>% select("Date", "USD (PM)") %>% rename(Price = "USD (PM)")
@@ -257,9 +254,9 @@ raster::cv(SP500$Price)  # SP500 15.20827
 
 
 # Korrelasjon
-cor(BTC$Price, ETH$Price) # Cor på 0.7109
-cor(BTC$Price, SP500$Price) # 0.8414708
-cor(BTC$Price, Gold$Price) #  0.6307463
+#cor(BTC$Price, ETH$Price) # Cor på 0.7109
+#cor(BTC$Price, SP500$Price) # 0.8414708
+#cor(BTC$Price, Gold$Price) #  0.6307463
 
 #gp = group_by(Asset)
 #dplyr::summarize(gp, cor(a, b))
@@ -321,3 +318,25 @@ cor(BTC$Price, Gold$Price) #  0.6307463
 
 ```
 
+
+Kilder : 
+
+Quandl API - gull priser
+
+#Bitcoin
+https://finance.yahoo.com/quote/BTC-USD/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
+
+#Ethereum
+https://finance.yahoo.com/quote/ETH-USD/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
+
+#Gull
+https://finance.yahoo.com/quote/GC%3DF/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
+
+#Vix
+https://finance.yahoo.com/quote/%5EVIX/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
+
+#Brent olje 
+https://finance.yahoo.com/quote/BZ%3DF/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
+
+#S&P500
+https://finance.yahoo.com/quote/%5EGSPC/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
