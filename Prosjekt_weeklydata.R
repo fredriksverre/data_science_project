@@ -244,9 +244,17 @@ log_returns2 <- cbind(log_returns2)
 log_returns2 <- rbind(0,log_returns2)
 
 Gold2020 <- cbind(Gold2020, log_returns2)
+# 
+log_returns2 <- diff(log(SP500_2020$Price), lag=1)
+
+log_returns2 <- cbind(log_returns2)
+
+log_returns2 <- rbind(0,log_returns2)
+
+SP500_2020 <- cbind(SP500_2020, log_returns2)
 
 # Making data long
-df2<-bind_rows(BTC2020,Gold2020)
+df2<-bind_rows(BTC2020,Gold2020,SP500_2020)
 # Making cumulative count
 df2 <- df2 %>% select(week,Price,Asset,log_returns2) %>% group_by(Asset)%>% mutate(cumulative = cumsum(log_returns2))
 # Plotting. Ser på avkastning til Gull og Bitcoin i 2020
@@ -255,9 +263,9 @@ df2 %>%
   geom_line(aes(color=Asset))+
   ylab(expression("Vekst på kumulativ form")) +
   xlab("Daily") +
-  labs(title = "",
+  labs(title = "Logaritmisk avkastning på kumulativ form",
        subtitle = "",
-       caption = "")
+       caption = "")+theme(plot.title = element_text(hjust = 0.5))
 
 #
 gp = group_by(Asset)
