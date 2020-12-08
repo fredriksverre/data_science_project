@@ -41,22 +41,22 @@ VIX <- getSymbols("^VIX", auto.assign=FALSE, from="2016-01-04", src='yahoo') # D
 
 # Making data from xts to normal df. Picking columns and renameing.
 ETH <- zoo::fortify.zoo(ETH)
-ETH <- ETH %>% select("Index","ETH-USD.Close") %>% mutate(Asset = "Ethereum") %>% rename(Date ="Index", Price = "ETH-USD.Close")
+ETH <- ETH %>% select("Index","ETH-USD.Close") %>% rename(Date ="Index", Price = "ETH-USD.Close")
 
 BTC <- zoo::fortify.zoo(BTC)
-BTC <- BTC %>% select("Index","BTC-USD.Close") %>% mutate(Asset = "Bitcoin") %>% rename(Date ="Index", Price = "BTC-USD.Close")
+BTC <- BTC %>% select("Index","BTC-USD.Close") %>% rename(Date ="Index", Price = "BTC-USD.Close")
 
 SP500 <- zoo::fortify.zoo(SP500)
-SP500 <- SP500 %>% select("Index","GSPC.Close") %>% mutate(Asset = "S&P500") %>% rename(Date ="Index", Price = "GSPC.Close")
+SP500 <- SP500 %>% select("Index","GSPC.Close") %>% rename(Date ="Index", Price = "GSPC.Close")
 
 #Gold <- zoo::fortify.zoo(Gold)
 #Gold <- Gold %>% select("Index","GC=F.Close") %>% mutate(Asset = "Gold") %>% rename(Date ="Index", Price = "GC=F.Close")
 
 VIX <- zoo::fortify.zoo(VIX)
-VIX <- VIX %>% select("Index","VIX.Close") %>% mutate(Asset = "VixIndex") %>% rename(Date ="Index", Price = "VIX.Close")
+VIX <- VIX %>% select("Index","VIX.Close") %>% rename(Date ="Index", Price = "VIX.Close")
 
 BrentOil <- zoo::fortify.zoo(BrentOil)
-BrentOil <- BrentOil %>% select("Index","BZ=F.Close") %>% mutate(Asset = "BrentOil") %>% rename(Date ="Index", Price = "BZ=F.Close")
+BrentOil <- BrentOil %>% select("Index","BZ=F.Close") %>% rename(Date ="Index", Price = "BZ=F.Close")
 
 # Lager ny variabel som sorterer ukentlig
 BTC$week <- floor_date(BTC$Date, "week")
@@ -163,7 +163,7 @@ df <- bind_rows(ETH,BTC,SP500,Gold,VIX) # For store hull i datasettet til gull.
 # Making log_returns cumulative
 df <- df %>% group_by(Asset)%>% mutate(cumulative = cumsum(log_returns))
 
-# Plotting
+# Plotting! Usikker på om grafen er riktig. Synes nedgangen er for liten i bitcoin og ETH
 df %>% 
   ggplot(aes(x=week, y=cumulative, group=Asset)) +
   geom_line(aes(color=Asset))+
@@ -173,18 +173,93 @@ df %>%
        subtitle = "",
        caption = "")
 
-# Coefficient of variations
+# Coefficient of variations (relative standard deviation)
 raster::cv(BTC$Price)    # BTC 72.41231
 raster::cv(ETH$Price)    # ETH 96.86965
 raster::cv(Gold$Price)   # Gold 15.16687
 raster::cv(SP500$Price)  # SP500 15.20827
 
 
-#Mulig vi må ha ukentlig pris
-cor(BTC$Price, ETH$Price) # Cor på 0.7109
-cor(BTC$Price, SP500$Price) # Incompatible. Why ?? 
-cor(BTC$Price, Gold$Price) # Incompatible. Why ?? 
+# ETH CV/return of asset (historical)
+96.54888/61670 # 0.001565573
+# BTC 
+72.8754/ 4100 # 0.01777449
+# Gold
+15.20132 / 61 # 0.249202
+#SP500
+15.3343 / 83 # 0.1847506
 
+#Korrelasjon 2016-2020
+cor(BTC$Price, ETH$Price) # BTC/ETH på 0.7109
+cor(BTC$Price, Gold$Price) #BTC/Gold 0.6299536
+cor(BTC$Price, SP500$Price) #BTC/SP500 0.8419065
+cor(Gold$Price,SP500$Price)
+
+# Korrelasjon 2018
+ETH2018 <- ETH %>% filter(week>= "2018-01-01" & week <"2019-01-01")
+BTC2018 <- BTC %>% filter(week>= "2018-01-01" & week <"2019-01-01")
+Gold2018 <- Gold %>% filter(week>= "2018-01-01" & week <"2019-01-01")
+SP500_2018 <- SP500 %>% filter(week>= "2018-01-01" & week <"2019-01-01")
+
+cor(BTC2018$Price,ETH2018$Price) #BTC/ETH 
+cor(BTC2018$Price,Gold2018$Price) #BTC/Gold 
+cor(BTC2018$Price,SP500_2018$Price) #BTC/SP500 
+cor(Gold2018$Price,SP500_2018$Price)
+
+# Korrelasjon 2019
+ETH2019 <- ETH %>% filter(week>= "2019-01-01" & week <"2020-01-01")
+BTC2019 <- BTC %>% filter(week>= "2019-01-01" & week <"2020-01-01")
+Gold2019 <- Gold %>% filter(week>= "2019-01-01" & week <"2020-01-01")
+SP500_2019 <- SP500 %>% filter(week>= "2019-01-01" & week <"2020-01-01")
+
+cor(BTC2019$Price,ETH2019$Price) #BTC/ETH
+cor(BTC2019$Price,Gold2019$Price) #BTC/Gold 
+cor(BTC2019$Price,SP500_2019$Price) #BTC/SP500 
+cor(Gold2019$Price,SP500_2019$Price)
+
+# Korrelasjon 2020
+ETH2020 <- ETH %>% filter(week>= "2020-01-01")
+BTC2020 <- BTC %>% filter(week>= "2020-01-01")
+Gold2020 <- Gold %>% filter(week>= "2020-01-01")
+SP500_2020 <- SP500 %>% filter(week>= "2020-01-01")
+
+cor(BTC2020$Price,ETH2020$Price) #BTC/ETH
+cor(BTC2020$Price,Gold2020$Price) #BTC/Gold 
+cor(BTC2020$Price,SP500_2020$Price) #BTC/SP500 
+cor(Gold2020$Price,SP500_2020$Price) #Gold /SP500
+
+# Taking log of df
+log_returns2 <- diff(log(BTC2020$Price), lag=1)
+
+log_returns2 <- cbind(log_returns2)
+
+log_returns2 <- rbind(0,log_returns2)
+
+BTC2020 <- cbind(BTC2020, log_returns2)
+# 
+log_returns2 <- diff(log(Gold2020$Price), lag=1)
+
+log_returns2 <- cbind(log_returns2)
+
+log_returns2 <- rbind(0,log_returns2)
+
+Gold2020 <- cbind(Gold2020, log_returns2)
+
+# Making data long
+df2<-bind_rows(BTC2020,Gold2020)
+# Making cumulative count
+df2 <- df2 %>% select(week,Price,Asset,log_returns2) %>% group_by(Asset)%>% mutate(cumulative = cumsum(log_returns2))
+# Plotting. Ser på avkastning til Gull og Bitcoin i 2020
+df2 %>% 
+  ggplot(aes(x=week, y=cumulative, group=Asset)) +
+  geom_line(aes(color=Asset))+
+  ylab(expression("Vekst på kumulativ form")) +
+  xlab("Daily") +
+  labs(title = "",
+       subtitle = "",
+       caption = "")
+
+#
 gp = group_by(Asset)
 dplyr::summarize(gp, cor(a, b))
 
@@ -213,28 +288,20 @@ summary(regresjon1)
 #plot(pressure, pch = 10, col = "blue") #Plot the results
 #abline(lmTemp) #Add a regression line
 
-#coefficient of variation
-#mean(BTC$Price)
-#sd(BTC$Price)
-#
-#mean(ETH$Price)
-#sd(ETH$Price)
-#
-#mean(Gold$Price)
-#sd(Gold$Price)
-#
-#mean(SP500$Price)
-#sd(SP500$Price)
 
 summary(BTC)
 summary(ETH)
+
+
 # Making a function to calculate coefficient of variation
 #CV <- function(mean, sd){
- # (sd/mean)*100
+  #(sd/mean)*100
 #}
 
 # Coefficient of variations
-#CV(mean = 5851.609, sd = 4237.285) 
+
+
+
 
 #CV(mean = 200.6097, sd = 227.2656) 
 
