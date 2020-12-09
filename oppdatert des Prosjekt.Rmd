@@ -24,12 +24,14 @@ library(Quandl)
 
 ```
 
+
 &nbsp;
 &nbsp;
 &nbsp;
 
 ## A closer look at Bitcoin
-
+![Bitvoin bilde](https://thumbor.forbes.com/thumbor/960x0/https%3A%2F%2Fspecials-images.forbesimg.com%2Fdam%2Fimageserve%2F908633080%2F960x0.jpg%3Ffit%3Dscale)
+Sourse:https://www.forbes.com/sites/forbesfinancecouncil/2018/12/05/the-top-10-risks-of-bitcoin-investing-and-how-to-avoid-them/?sh=55fff8a52407
 &nbsp;
 &nbsp;
 &nbsp;
@@ -466,7 +468,7 @@ https://finance.yahoo.com/quote/BZ%3DF/history?period1=1446768000&period2=160462
 ###### S&P500
 https://finance.yahoo.com/quote/%5EGSPC/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
 
-```{r message=FALSE, echo=FALSE}
+```{r message=FALSE, echo=FALSE,warning=FALSE}
 ui <- fluidPage(
   titlePanel(title=h4("ASSET", align="center")),
   sidebarLayout(
@@ -487,5 +489,6 @@ server <- function(input,output){
     req(dat())
     ggplot(data=dat(),aes(x=week,y=cumulative),group=Asset)+geom_line(aes(color=Asset))},height = 300,width = 500)}
 shinyApp(ui, server) 
+
 ```
 
