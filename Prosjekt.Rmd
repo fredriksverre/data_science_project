@@ -389,6 +389,8 @@ df2 %>%
 ### Coefficients of variations 2020:
 
 
+##### Make dynamic korrelasjon!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 Coefficients of variations (relativ varians):
 
 **Relativ varians for Bitcoin:** `r raster::cv(BTC2020$Price) ` 
