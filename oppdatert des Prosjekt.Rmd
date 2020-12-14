@@ -304,7 +304,7 @@ df %>%
 
 ```{r message=FALSE, echo=FALSE,warning=FALSE}
 ui <- fluidPage(
-  titlePanel(title=h4("ASSET", align="center")),
+  titlePanel(title=h4("When did you invest?", align="center")),
   sidebarLayout(
     sidebarPanel( 
       sliderInput("df", "Dates:",min = as.Date("2016-01-01","%Y-%m-%d"), max = as.Date(Sys.time(),"%Y-%m-%d"),value=c(as.Date("2016-01-01"),as.Date("2018-12-01")),timeFormat="%Y-%m-%d")),mainPanel(plotOutput("plot2"))))
