@@ -1,5 +1,5 @@
 ---
-title: "A closer look at Bitcoin"
+title: "Can Bitcoin be an alternative hedge to gold in a recession?"
 output:
   html_document:
     toc: true
@@ -29,7 +29,7 @@ library(Quandl)
 &nbsp;
 &nbsp;
 
-## A closer look at Bitcoin
+
 ![Bitvoin bilde](https://thumbor.forbes.com/thumbor/960x0/https%3A%2F%2Fspecials-images.forbesimg.com%2Fdam%2Fimageserve%2F908633080%2F960x0.jpg%3Ffit%3Dscale)
 Sourse:https://www.forbes.com/sites/forbesfinancecouncil/2018/12/05/the-top-10-risks-of-bitcoin-investing-and-how-to-avoid-them/?sh=55fff8a52407
 &nbsp;
