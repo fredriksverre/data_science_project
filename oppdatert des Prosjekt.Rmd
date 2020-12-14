@@ -470,7 +470,7 @@ What did you learn about the data? How did you answer the questions? How can you
 ### Kilder: 
 
 ###### Quandl API - gull priser
-Sett inn link
+https://www.quandl.com/data/LBMA/GOLD-Gold-Price-London-Fixing
 
 ###### Bitcoin
 https://finance.yahoo.com/quote/BTC-USD/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
