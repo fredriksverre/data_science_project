@@ -302,6 +302,28 @@ df %>%
        caption = "")+theme(plot.title = element_text(hjust = 0.5))
 ```
 
+```{r message=FALSE, echo=FALSE,warning=FALSE}
+ui <- fluidPage(
+  titlePanel(title=h4("ASSET", align="center")),
+  sidebarLayout(
+    sidebarPanel( 
+      sliderInput("df", "Dates:",min = as.Date("2016-01-01","%Y-%m-%d"), max = as.Date(Sys.time(),"%Y-%m-%d"),value=c(as.Date("2016-01-01"),as.Date("2018-12-01")),timeFormat="%Y-%m-%d")),mainPanel(plotOutput("plot2"))))
+
+
+server <- function(input,output){
+  
+  #dat <- reactive({df[df$week %in% seq(from=min(df$week),to=max(df$week),by=1),]})
+  dat <- reactive({
+    test <- df[df$week %in% seq(from=min(input$df),to=max(input$df),by=0.0001),]
+    print(test)
+    test
+  })
+  
+  output$plot2<-renderPlot({
+    req(dat())
+    ggplot(data=dat()%>%group_by(Asset)%>% mutate(culinteractive=cumsum(log_returns)),aes(x=week,y=culinteractive),group=Asset)+geom_line(aes(color=Asset))},height = 300,width = 500)}
+shinyApp(ui, server)
+```
 
 ### Coefficients of variations 2016-2020:
 
@@ -326,9 +348,9 @@ Her har vi kjørt korrelsasjon mellom Bitcoin og den nevnte Asset klassen nedenf
 
 **BTC/ETH:** `r cor(BTC$Price, ETH$Price) `
 
-**BTC/Gold:** `r cor(BTC$Price, Gold$Price) `
+**BTC/Gold:** `r cor(c(Gold$Price,NA),BTC$Price,use='complete.obs')` denne funker
 
-**BTC/SP500:** `r cor(BTC$Price, SP500$Price) `
+**BTC/SP500:** `r cor(c(SP500$Price,NA),BTC$Price,use='complete.obs')` denne funker
 
 **Gold/SP500:** `r cor(Gold$Price,SP500$Price) `
 
@@ -408,9 +430,9 @@ Her har vi kjørt korrelsasjon mellom Bitcoin og den nevnte Asset klassen nedenf
 
 **BTC/ETH:** `r cor(BTC2020$Price, ETH2020$Price) ` 
 
-**BTC/Gold:** `r cor(BTC2020$Price, Gold2020$Price) `
+**BTC/Gold:**`r cor(c(Gold2020$Price,NA),BTC2020$Price,use='complete.obs')` denne funker
 
-**BTC/SP500:** `r cor(BTC2020$Price, SP500_2020$Price) `
+**BTC/SP500:**`r cor(c(SP500_2020$Price,NA),BTC2020$Price,use='complete.obs')` denne funker
 
 **Gold/SP500:** `r cor(Gold2020$Price,SP500_2020$Price) `
 
@@ -468,27 +490,4 @@ https://finance.yahoo.com/quote/BZ%3DF/history?period1=1446768000&period2=160462
 ###### S&P500
 https://finance.yahoo.com/quote/%5EGSPC/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
 
-```{r message=FALSE, echo=FALSE,warning=FALSE}
-ui <- fluidPage(
-  titlePanel(title=h4("ASSET", align="center")),
-  sidebarLayout(
-    sidebarPanel( 
-      sliderInput("df", "Dates:",min = as.Date("2016-01-01","%Y-%m-%d"), max = as.Date(Sys.time(),"%Y-%m-%d"),value=c(as.Date("2016-01-01"),as.Date("2018-12-01")),timeFormat="%Y-%m-%d")),mainPanel(plotOutput("plot2"))))
-
-
-server <- function(input,output){
-  
-  #dat <- reactive({df[df$week %in% seq(from=min(df$week),to=max(df$week),by=1),]})
-  dat <- reactive({
-    test <- df[df$week %in% seq(from=min(input$df),to=max(input$df),by=1),]
-    print(test)
-    test
-  })
-  
-  output$plot2<-renderPlot({
-    req(dat())
-    ggplot(data=dat(),aes(x=week,y=cumulative),group=Asset)+geom_line(aes(color=Asset))},height = 300,width = 500)}
-shinyApp(ui, server) 
-
-```
 
