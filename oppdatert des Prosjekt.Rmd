@@ -20,7 +20,9 @@ library(readr)
 library(quantmod)
 library(lubridate)
 library(Quandl)
-
+library(PerformanceAnalytics)
+library(xts)
+library(tidyquant)
 
 ```
 
@@ -425,6 +427,50 @@ Coefficients of variations (relativ varians):
 
  
 ### Korrelasjon 2020:
+
+```{r message=FALSE, echo=FALSE}
+ETH2 <- ETH %>% rename( PriceETH = "Price", week2 = "week")
+BTC2 <- BTC %>% rename( PriceBTC = "Price", Asset2  = "Asset")
+
+df2<-cbind(ETH2,BTC2)
+
+rolling_corr$corr <- correlate(ETH2$PriceETH,BTC2$PriceBTC)
+
+# Making rolling correlation
+rolling_corr <- df2 %>%
+  # Data wrangling
+  select(week, PriceBTC,PriceETH,Asset) %>%
+  # Mutation
+  tq_mutate_xy(
+    x          = PriceBTC,
+    y          = PriceETH,
+    mutate_fun = runCor, 
+    # runCor args
+    n          = 8,
+    use        = "pairwise.complete.obs",
+    # tq_mutate args
+    col_rename = "rolling_corr"
+  )
+
+
+# Plot
+rolling_corr %>%
+  ggplot(aes(x = week, color = Asset)) +
+  # Data
+  #geom_line(aes(y = corr.x), color = "red") +
+  geom_point(aes(y = rolling_corr), alpha = 0.5) +
+  facet_wrap(~ Asset, ncol = 12, scales = "free_y") +
+  # Aesthetics
+  scale_color_tq() +
+  labs(
+    title = "6-week Rolling Correlations, Bitcoin vs Ethereum",
+    subtitle = "Relationships are dynamic vs static correlation (red line)",
+    x = "", y = "Correlation"
+  ) +
+  theme_tq() +
+  theme(legend.position="none")
+```
+
 
 Her har vi kjørt korrelsasjon mellom Bitcoin og den nevnte Asset klassen nedenfor:
 

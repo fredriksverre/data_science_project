@@ -1,4 +1,3 @@
-
 library(tidyverse)
 library(httr)
 library(readr)
@@ -7,23 +6,24 @@ library(lubridate)
 library(Quandl)
 library(PerformanceAnalytics)
 library(xts)
+library(tidyquant)
 
 # Getting data from API 
 Gold <-Quandl("LBMA/GOLD", api_key="4TmA83fLoY_UpQJVjVJu", start_date="2016-01-04", end_date="2021-01-01")
-
-# Removing N/A values
-Gold1 <- na.omit(Gold1)
 
 # Selecting and renaming columns
 Gold <- Gold %>% select("Date", "USD (PM)") %>% rename(Price = "USD (PM)")
 
 # Converting gold_df into xts format
-toDate <- function(x) as.Date(x, origin = "1899-12-30")
-Gold1<- read.zoo(Gold, header = TRUE, sep = ",", FUN = toDate)
-Gold1 <- as.xts(Gold1)
+#toDate <- function(x) as.Date(x, origin = "1899-12-30")
+#Gold1<- read.zoo(Gold, header = TRUE, sep = ",", FUN = toDate)
+#Gold1 <- as.xts(Gold1)
+
+# Removing N/A values
+#Gold1 <- na.omit(Gold1)
 
 # Changing name on xts dataframe column
-names(Gold1) <- "Price"
+#names(Gold1) <- "Price"
 
 # Getting data from yahoo
 ETH <- getSymbols("ETH-USD", auto.assign=FALSE, from="2016-01-04", src='yahoo')
@@ -32,7 +32,7 @@ SP500 <- getSymbols("^GSPC", auto.assign=FALSE, from="2016-01-04", src='yahoo') 
 VIX <- getSymbols("^VIX", auto.assign=FALSE, from="2016-01-04", src='yahoo') # Data starter fra 04.01.2016. Mangler observasjoner i volum, men vi har ikke behov for dette
 
 # Making rolling(dynamic) correlations
-chart.RollingCorrelation(ETH$`ETH-USD.Close`, BTC$`BTC-USD.Close`, width = 24)
+#chart.RollingCorrelation(ETH$`ETH-USD.Close`, BTC$`BTC-USD.Close`, width = 24)
 chart.RollingCorrelation(SP500$GSPC.Close, BTC$`BTC-USD.Close`, width = 24)
 
 # Making data from xts to normal df. Picking columns and renameing.
@@ -59,8 +59,7 @@ BTC <- BTC %>%
 # Rename and putting new columns with Asset tag
 BTC <- BTC %>% rename(Price = "mean") %>% mutate(Asset = "Bitcoin")
 
-
-# 
+#
 ETH$week <- floor_date(ETH$Date, "week")
 # 
 ETH <- ETH %>%
@@ -164,6 +163,126 @@ df %>%
   labs(title = "",
        subtitle = "",
        caption = "")
+
+
+#### Static correlation
+
+df4 <- bind_rows(ETH,SP500)
+df4 <- df4 %>% select(week,Price,Asset)
+BTC <- BTC %>% select(week,Price)
+
+# Correlation table
+tidyverse_static_correlations <- df4 %>%
+  # Data wrangling
+  spread(key = Asset, value = Price) %>%
+  left_join(BTC, by = "week") %>%
+  select(-week) %>%
+  # Correlation and formating
+  correlate() 
+
+########################################Rolling correlation
+
+library(tidyquant)  # Loads tidyverse, tidyquant, financial pkgs, xts/zoo
+library(cranlogs)   # For inspecting package downloads over time
+library(corrr)      # Tidy correlation tables and correlation plotting
+library(cowplot) 
+
+ETH_cor1 <- ETH %>% rename( PriceETH = "Price", week2 = "week")
+BTC_cor1 <- BTC %>% rename( PriceBTC = "Price", Asset2  = "Asset")
+
+df2<-cbind(ETH_cor1,BTC_cor1)
+
+rolling_corr$corr <- correlate(ETH_cor1$PriceETH,BTC_cor1$PriceBTC)
+
+# Making rolling correlation
+rolling_corr <- df2 %>%
+  # Data wrangling
+  select(week, PriceBTC,PriceETH,Asset) %>%
+  # Mutation
+  tq_mutate_xy(
+    x          = PriceBTC,
+    y          = PriceETH,
+    mutate_fun = runCor, 
+    # runCor args
+    n          = 8,
+    use        = "pairwise.complete.obs",
+    # tq_mutate args
+    col_rename = "rolling_corr"
+  )
+
+# Join static correlations with rolling correlations
+tidyverse_static_correlations <- tidyverse_static_correlations %>%
+  select(term, all_cran) %>%
+  rename(package = term)
+
+rolling_corr <- rolling_corr %>%
+  left_join(tidyverse_static_correlations, by = "Asset") %>%
+  rename(static_corr = Price)
+
+
+# Plot
+rolling_corr %>%
+  ggplot(aes(x = week, color = Asset)) +
+  # Data
+  geom_line(aes(y = static_corr), color = "red") +
+  geom_point(aes(y = rolling_corr), alpha = 0.5) +
+  facet_wrap(~ Asset, ncol = 12, scales = "free_y") +
+  # Aesthetics
+  scale_color_tq() +
+  labs(
+    title = "6-week Rolling Correlations, Bitcoin vs Ethereum",
+    subtitle = "Relationships are dynamic vs static correlation (red line)",
+    x = "", y = "Correlation"
+  ) +
+  theme_tq() +
+  theme(legend.position="none")
+
+##################################################END
+
+########################################Rolling correlation
+
+#
+SP500_cor <- SP500 %>% rename( PriceSP500 = "Price", week2 = "week")
+BTC_cor <- BTC %>% rename( PriceBTC = "Price", Asset2  = "Asset")
+
+# Making wide data
+df1<-cbind(SP500_cor,BTC_cor)
+
+rolling_corr2 <- df1 %>%
+  # Data wrangling
+  select(week, PriceBTC,PriceSP500,Asset) %>%
+  # Mutation
+  tq_mutate_xy(
+    x          = PriceBTC,
+    y          = PriceSP500,
+    mutate_fun = runCor, 
+    # runCor args
+    n          = 4,
+    use        = "pairwise.complete.obs",
+    # tq_mutate args
+    col_rename = "rolling_corr"
+  )
+
+
+# Plot
+rolling_corr2 %>%
+  ggplot(aes(x = week, color = Asset)) +
+  # Data
+  #geom_line(aes(y = static_corr), color = "red") +
+  geom_point(aes(y = rolling_corr), alpha = 0.5) +
+  facet_wrap(~ Asset, ncol = 12, scales = "free_y") +
+  # Aesthetics
+  scale_color_tq() +
+  labs(
+    title = "4-Week Rolling Correlations, Bitcoin vs Ethereum",
+    subtitle = "Relationships are dynamic vs static correlation (red line)",
+    x = "", y = "Correlation"
+  ) +
+  theme_tq() +
+  theme(legend.position="none")
+
+##################################################END
+
 
 # Coefficient of variations (relative standard deviation)
 raster::cv(BTC$Price)    # BTC 72.41231
