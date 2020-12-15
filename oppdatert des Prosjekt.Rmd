@@ -297,7 +297,7 @@ Så summerer grouperby Asset og summer opp alle log returns med cumsum funksjone
 
 ```{r message=FALSE, echo=FALSE}
 # Plotting
-df %>% 
+p<-df %>% 
   ggplot(aes(x=week, y=cumulative, group=Asset)) +
   geom_line(aes(color=Asset))+
   ylab(expression("Vekst på kumulativ form")) +
@@ -305,6 +305,10 @@ df %>%
   labs(title = "Logaritmisk avkastning på kumulativ form fra 2016-2020",
        subtitle = "",
        caption = "")+theme(plot.title = element_text(hjust = 0.5))
+
+p<-p+scale_y_continuous(sec.axis = sec_axis(~./100, name = "[%] Tissen til alf er liten")) # adds one more y aksis to the plot showing the prosentage
+
+p
 ```
 
 ```{r message=FALSE, echo=FALSE,warning=FALSE}
