@@ -24,7 +24,7 @@ library(PerformanceAnalytics)
 library(xts)
 library(tidyquant)
 library(cranlogs)   # For inspecting package downloads over time
-library(corrr)      # Tidy correlation tables and correlation plotting
+library(corrr)      # Tidy correlation tables and correlation plottings
 library(cowplot) 
 
 ```
