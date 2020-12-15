@@ -625,6 +625,62 @@ tidyverse_rolling_corr2 %>%
 ```
 
 
+```{r message=FALSE, echo=FALSE, warning=FALSE}
+# Correlation table
+tidyverse_static_correlations3 <- df3 %>% filter(week>= "2020-01-01") %>%
+  # Data wrangling
+  spread(key = Asset, value = weekly.returns) %>%
+  left_join(SP500_1, by = "week") %>%
+  rename(SP500 = weekly.returns) %>%
+  select(-week) %>%
+  # Correlation and formating
+  correlate() 
+
+# Get rolling correlations
+tidyverse_rolling_corr3 <- df3 %>% filter(week>= "2020-01-01") %>%
+  # Data wrangling
+  left_join(SP500_1, by = "week") %>%
+  select(week,Asset, weekly.returns.x, weekly.returns.y ) %>%
+  # Mutation
+  tq_mutate_xy(
+    x          = weekly.returns.x,
+    y          = weekly.returns.y,
+    mutate_fun = runCor, 
+    # runCor args
+    n          = 4,
+    use        = "pairwise.complete.obs",
+    # tq_mutate args
+    col_rename = "rolling_corr"
+  )
+
+# Join static correlations with rolling correlations
+tidyverse_static_correlations3 <- tidyverse_static_correlations3 %>%
+  select(term, SP500) %>%
+  rename(Asset = term)
+
+tidyverse_rolling_corr3 <- tidyverse_rolling_corr3 %>%
+  left_join(tidyverse_static_correlations3, by = "Asset") %>%
+  rename(static_corr = SP500)
+
+# Plot
+tidyverse_rolling_corr3 %>%
+  ggplot(aes(x = week, color = Asset)) +
+  # Data
+  geom_line(aes(y = static_corr), color = "red") +
+  geom_line(aes(y = rolling_corr), alpha = 0.5) +
+  facet_wrap(~ Asset, ncol = 6, scales = "free_y") +
+  # Aesthetics
+  scale_color_tq() +
+  labs(
+    title = "S&P500: 4-Weeks Rolling Correlations, S&P500 vs different assets",
+    subtitle = "Relationships are dynamic vs static correlation (red line)",
+    x = "", y = "Correlation"
+  ) +
+  theme_tq() +
+  theme(legend.position="none")
+
+
+```
 
 
 
