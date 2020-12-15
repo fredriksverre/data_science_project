@@ -40,7 +40,7 @@ BTC2$week <- as.POSIXct(paste(BTC2$week, BTC2$Time), format="%Y-%m-%d")
 
 
 
-time_trend<-time_trend %>%mutate(Price= Price*150 )
+time_trend<-time_trend %>%mutate(Price= Price*200 )
 
 
 names(time_trend)[names(time_trend) == 'Date'] <- 'week' #Endrer navn på week data 
