@@ -33,7 +33,7 @@ VIX <- getSymbols("^VIX", auto.assign=FALSE, from="2016-01-04", src='yahoo') # D
 
 # Making rolling(dynamic) correlations
 #chart.RollingCorrelation(ETH$`ETH-USD.Close`, BTC$`BTC-USD.Close`, width = 24)
-chart.RollingCorrelation(SP500$GSPC.Close, BTC$`BTC-USD.Close`, width = 24)
+#chart.RollingCorrelation(SP500$GSPC.Close, BTC$`BTC-USD.Close`, width = 24)
 
 # Making data from xts to normal df. Picking columns and renameing.
 ETH <- zoo::fortify.zoo(ETH)

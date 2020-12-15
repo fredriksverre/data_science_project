@@ -351,7 +351,7 @@ Coefficients of variations (relativ varians):
 **Relativ varians for S&P500:** `r raster::cv(SP500$Price) ` 
 
  
-### Korrelasjon 2016-2020:
+
 
 Her har vi kjørt korrelsasjon mellom Bitcoin og den nevnte Asset klassen nedenfor:
 
@@ -621,7 +621,7 @@ tidyverse_rolling_corr2 %>%
 
 ```
 
-Her har vi kjørt korrelsasjon mellom Bitcoin og den nevnte Asset klassen nedenfor:
+
 
 
 
@@ -656,6 +656,11 @@ What did you learn about the data? How did you answer the questions? How can you
 &nbsp;
 &nbsp;
 
+
+We where not able to run this Rmarkdown in the online edition for some unknown reason.
+
+It can be a problem kniting this Rmarkdown on the weekendays and until the stock market closes on Monday, since there will be added new data during the weekend for Bitcoin and Ethereum and not for the traditional markets since those are closed. That means that it will be added one more observation for the crypto assets and can cause errors kniting. 
+
 ### Kilder: 
 
 ###### Quandl API - gull priser
@@ -672,9 +677,6 @@ https://finance.yahoo.com/quote/GC%3DF/history?period1=1446768000&period2=160462
 
 ###### Vix
 https://finance.yahoo.com/quote/%5EVIX/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
-
-###### Brent olje 
-https://finance.yahoo.com/quote/BZ%3DF/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
 
 ###### S&P500
 https://finance.yahoo.com/quote/%5EGSPC/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
