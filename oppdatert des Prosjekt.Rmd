@@ -23,6 +23,9 @@ library(Quandl)
 library(PerformanceAnalytics)
 library(xts)
 library(tidyquant)
+library(cranlogs)   # For inspecting package downloads over time
+library(corrr)      # Tidy correlation tables and correlation plotting
+library(cowplot) 
 
 ```
 
@@ -348,13 +351,7 @@ Coefficients of variations (relativ varians):
 
 Her har vi kjørt korrelsasjon mellom Bitcoin og den nevnte Asset klassen nedenfor:
 
-**BTC/ETH:** `r cor(BTC$Price, ETH$Price) `
 
-**BTC/Gold:** `r cor(c(Gold$Price,NA),BTC$Price,use='complete.obs')` denne funker
-
-**BTC/SP500:** `r cor(c(SP500$Price,NA),BTC$Price,use='complete.obs')` denne funker
-
-**Gold/SP500:** `r cor(Gold$Price,SP500$Price) `
 
 
 Korrelsasjonen vi har gjørt mellom Bitcoin og S&P500 indexen i tidsrommet 2016 til dagens dato har vi funnet at de korrelerer veldig høyt. Gull og S&P500 korrelerer også høyt men lavere enn Bitcoin/S&P500. Slik at ut i fra disse tallene ser det ikke ut som at Bitcoin kan være en bedre hedge/diversifisering en gold kun med tanke på risiko. Dette resultat kan være anerledes om vi ser på andre år eksplisit.
@@ -410,6 +407,15 @@ df2 %>%
        subtitle = "",
        caption = "")+theme(plot.title = element_text(hjust = 0.5))
 
+
+#**BTC/ETH:** `r cor(BTC$Price, ETH$Price) `
+
+#**BTC/Gold:** `r cor(c(Gold$Price,NA),BTC$Price,use='complete.obs')` denne funker
+
+#**BTC/SP500:** `r cor(c(SP500$Price,NA),BTC$Price,use='complete.obs')` denne funker
+
+#**Gold/SP500:** `r cor(Gold$Price,SP500$Price) `
+
 ```
 
 ### Coefficients of variations 2020:
@@ -429,12 +435,29 @@ Coefficients of variations (relativ varians):
 ### Korrelasjon 2020:
 
 ```{r message=FALSE, echo=FALSE}
-ETH2 <- ETH %>% rename( PriceETH = "Price", week2 = "week")
-BTC2 <- BTC %>% rename( PriceBTC = "Price", Asset2  = "Asset")
 
-df2<-cbind(ETH2,BTC2)
+ETH_cor1 <- ETH %>% rename( PriceETH = "Price", week2 = "week")
+BTC_cor1 <- BTC %>% rename( PriceBTC = "Price", Asset2  = "Asset")
 
-rolling_corr$corr <- correlate(ETH2$PriceETH,BTC2$PriceBTC)
+df2<-cbind(ETH_cor1,BTC_cor1)
+
+#### Static correlation
+df4 <- bind_rows(ETH,SP500)
+df4 <- df4 %>% select(week,Price,Asset)
+BTC <- BTC %>% select(week,Price)
+
+# Correlation table
+tidyverse_static_correlations <- df4 %>%
+  # Data wrangling
+  spread(key = Asset, value = Price) %>%
+  left_join(BTC, by = "week") %>%
+  select(-week) %>%
+  # Correlation and formating
+  correlate() 
+
+
+
+#rolling_corr$corr <- correlate(ETH_cor1$PriceETH,BTC_cor1$PriceBTC)
 
 # Making rolling correlation
 rolling_corr <- df2 %>%
@@ -452,12 +475,21 @@ rolling_corr <- df2 %>%
     col_rename = "rolling_corr"
   )
 
+# Join static correlations with rolling correlations
+tidyverse_static_correlations <- tidyverse_static_correlations %>%
+  select(term, Price) %>%
+  rename(Asset = term)
+
+rolling_corr <- rolling_corr %>%
+  left_join(tidyverse_static_correlations, by = "Asset") %>%
+  rename(static_corr = Price)
+
 
 # Plot
 rolling_corr %>%
   ggplot(aes(x = week, color = Asset)) +
   # Data
-  #geom_line(aes(y = corr.x), color = "red") +
+  geom_line(aes(y = static_corr), color = "red") +
   geom_point(aes(y = rolling_corr), alpha = 0.5) +
   facet_wrap(~ Asset, ncol = 12, scales = "free_y") +
   # Aesthetics
@@ -469,18 +501,21 @@ rolling_corr %>%
   ) +
   theme_tq() +
   theme(legend.position="none")
+
+
+#**BTC/ETH:** `r cor(BTC2020$Price, ETH2020$Price) ` 
+
+#**BTC/Gold:**`r cor(c(Gold2020$Price,NA),BTC2020$Price,use='complete.obs')` denne funker
+
+#**BTC/SP500:**`r cor(c(SP500_2020$Price,NA),BTC2020$Price,use='complete.obs')` denne funker
+
+#**Gold/SP500:** `r cor(Gold2020$Price,SP500_2020$Price) `
 ```
 
 
 Her har vi kjørt korrelsasjon mellom Bitcoin og den nevnte Asset klassen nedenfor:
 
-**BTC/ETH:** `r cor(BTC2020$Price, ETH2020$Price) ` 
 
-**BTC/Gold:**`r cor(c(Gold2020$Price,NA),BTC2020$Price,use='complete.obs')` denne funker
-
-**BTC/SP500:**`r cor(c(SP500_2020$Price,NA),BTC2020$Price,use='complete.obs')` denne funker
-
-**Gold/SP500:** `r cor(Gold2020$Price,SP500_2020$Price) `
 
 Er dataen vi har brukt valid i forhold til statistiske regler? 
 
