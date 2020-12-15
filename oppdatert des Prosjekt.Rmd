@@ -90,18 +90,14 @@ What questions are you trying to answer? How did these questions evolve over the
 
 ### Data
 # Getting data from API 
-Gold <-Quandl("LBMA/GOLD", api_key="4TmA83fLoY_UpQJVjVJu", start_date="2016-01-04", end_date="2021-01-01")
+Gold <-Quandl("LBMA/GOLD", api_key="4TmA83fLoY_UpQJVjVJu", start_date="2016-01-04", end_date="2022-01-01")
 Gold <- Gold %>% select("Date", "USD (PM)") %>% rename(Price = "USD (PM)")
 
 # Getting data from yahoo
 ETH <- getSymbols("ETH-USD", auto.assign=FALSE, from="2016-01-04", src='yahoo')
 BTC <- getSymbols("BTC-USD", auto.assign=FALSE, from="2016-01-04", src='yahoo')
-SP500 <- getSymbols("^GSPC", auto.assign=FALSE, from="2016-01-04", src='yahoo') # Datar starter 04.01.2016
-#BrentOil <- getSymbols("BZ=F", auto.assign=FALSE, from="2016-01-04", src='yahoo') # Data fra 04.12.2018
-VIX <- getSymbols("^VIX", auto.assign=FALSE, from="2016-01-04", src='yahoo') # Data starter fra 04.01.2016. Mangler observasjoner i volum, men vi har ikke behov for dette
-#Gold <- getSymbols("GC=F", auto.assign=FALSE, from="2016-01-04", src='yahoo') # Data starter fra 04.01.2016
-
-
+SP500 <- getSymbols("^GSPC", auto.assign=FALSE, from="2016-01-04", src='yahoo') # Datar 
+VIX <- getSymbols("^VIX", auto.assign=FALSE, from="2016-01-04", src='yahoo') # Data starter 
 # Making data from xts to normal df. Picking columns and renameing.
 ETH <- zoo::fortify.zoo(ETH)
 ETH <- ETH %>% select("Index","ETH-USD.Close") %>% mutate(Asset = "Ethereum") %>% rename(Date ="Index", Price = "ETH-USD.Close")
@@ -112,15 +108,8 @@ BTC <- BTC %>% select("Index","BTC-USD.Close") %>% mutate(Asset = "Bitcoin") %>%
 SP500 <- zoo::fortify.zoo(SP500)
 SP500 <- SP500 %>% select("Index","GSPC.Close") %>% mutate(Asset = "S&P500") %>% rename(Date ="Index", Price = "GSPC.Close")
 
-#Gold <- zoo::fortify.zoo(Gold)
-#Gold <- Gold %>% select("Index","GC=F.Close") %>% mutate(Asset = "Gold") %>% rename(Date ="Index", Price = "GC=F.Close")
-
 VIX <- zoo::fortify.zoo(VIX)
 VIX <- VIX %>% select("Index","VIX.Close") %>% mutate(Asset = "VixIndex") %>% rename(Date ="Index", Price = "VIX.Close")
-
-#BrentOil <- zoo::fortify.zoo(BrentOil)
-#BrentOil <- BrentOil %>% select("Index","BZ=F.Close") %>% mutate(Asset = "BrentOil") %>% rename(Date ="Index", Price = "BZ=F.Close")
-
 
 # Lager ny variabel som sorterer ukentlig
 BTC$week <- floor_date(BTC$Date, "week")
@@ -130,7 +119,6 @@ BTC <- BTC %>%
   summarize(mean = mean(Price))
 #
 BTC <- BTC %>% rename(Price = "mean") %>% mutate(Asset = "Bitcoin")
-
 
 # 
 ETH$week <- floor_date(ETH$Date, "week")
@@ -152,7 +140,7 @@ SP500 <- SP500 %>%
 SP500 <- SP500 %>% rename(Price = "mean") %>% mutate(Asset = "SP500")
 
 
-# Fjerner N/A verdier
+# Removing N/A values
 Gold <- na.omit(Gold)
 # 
 Gold$week <- floor_date(Gold$Date, "week")
@@ -171,7 +159,6 @@ VIX <- VIX %>%
   summarize(mean = mean(Price))
 #
 VIX <- VIX %>% rename(Price = "mean") %>% mutate(Asset = "VIX")
-
 
 
 # Making LOG percentage change from day to day
@@ -220,58 +207,13 @@ log_returns <- rbind(0,log_returns)
 VIX <- cbind(VIX, log_returns)
 
 # Making data long
-df <- bind_rows(ETH,BTC,SP500,Gold,VIX) # For store hull i datasettet til gull.
-
-#df <- df %>%
- # arrange(Asset,Date) 
-
-
+df <- bind_rows(ETH,BTC,SP500,Gold,VIX)
 
 # Making log_returns cumulative
 df <- df %>% group_by(Asset)%>% mutate(cumulative = cumsum(log_returns))
 
-
-# Coefficient of variations
-#raster::cv(BTC$Price)    # BTC 72.41231
-#raster::cv(ETH$Price)    # ETH 96.86965
-#raster::cv(Gold$Price)   # Gold 15.16687
-#raster::cv(SP500$Price)  # SP500 15.20827
-
-
-# Korrelasjon
-#cor(BTC$Price, ETH$Price) # Cor på 0.7109
-#cor(BTC$Price, SP500$Price) # 0.8414708
-#cor(BTC$Price, Gold$Price) #  0.6307463
-
-#gp = group_by(Asset)
-#dplyr::summarize(gp, cor(a, b))
-
-
-#df_regresjon <- cbind(BTC,ETH$Price)
-#df_regresjon <- df_regresjon %>% select(Price,`ETH$Price`)
-
-#regresjon1 <- lm(Price ~ ETH$Price, data= df_regresjon)
-#plot(df_regresjon$Price,df_regresjon$`ETH$Price`, pch = 16, col = "blue") 
-#abline(regresjon1)
-
-#summary(regresjon1)
-
-
-
-
-# Sliter med å finne Olje data.
-
-# Relativ varians (Risiko), coefficient of variation. Hva sier den CV vi har? 
-
 # CV = sd/mean*100, den sier noe om hvor store svingninger det er i aksjen men ikke noe om avkastning(potential return).
 
-# Bruke sharp ratio? Hvordan beregne antatt avkastning?
-
-
-
-#lmTemp = lm(Pressure~Temperature, data = pressure) #Create the linear regression
-#plot(pressure, pch = 10, col = "blue") #Plot the results
-#abline(lmTemp) #Add a regression line
 ```
 
 ### Data
@@ -452,9 +394,6 @@ df2 <- df2 %>% select(week,Price,Asset) %>% rename(Asset2 = "Asset")
 
 BTC1 <- BTC %>% select(week,Price) %>% tibble::as_tibble()
 
-
-#rm(df)
-
 # Asset Returns
 df2 <- df2 %>%
   group_by(Asset2) %>%
@@ -496,8 +435,6 @@ tidyverse_rolling_corr <- df2 %>%
     col_rename = "rolling_corr"
   )
 
-#
-#tidyverse_rolling_corr2 <- tidyverse_rolling_corr %>% arrange(Asset,week)
 
 # Join static correlations with rolling correlations
 tidyverse_static_correlations <- tidyverse_static_correlations %>%
@@ -508,15 +445,13 @@ tidyverse_rolling_corr2 <- tidyverse_rolling_corr %>%
   left_join(tidyverse_static_correlations, by = "Asset2") %>%
   rename(static_corr = Bitcoin)
 
-
-
 # Plot
 tidyverse_rolling_corr2 %>%
   ggplot(aes(x = week, color = Asset2)) +
   # Data
   geom_line(aes(y = static_corr), color = "red") +
   geom_point(aes(y = rolling_corr), alpha = 0.5) +
-  facet_wrap(~ Asset2, ncol = 3, scales = "free_y") +
+  facet_wrap(~ Asset2, ncol = 2, scales = "free_y") +
   # Aesthetics
   scale_color_tq() +
   labs(
@@ -527,18 +462,6 @@ tidyverse_rolling_corr2 %>%
   theme_tq() +
   theme(legend.position="none")
 
-
-       
-
-
-
-#**BTC/ETH:** `r cor(BTC2020$Price, ETH2020$Price) ` 
-
-#**BTC/Gold:**`r cor(c(Gold2020$Price,NA),BTC2020$Price,use='complete.obs')` denne funker
-
-#**BTC/SP500:**`r cor(c(SP500_2020$Price,NA),BTC2020$Price,use='complete.obs')` denne funker
-
-#**Gold/SP500:** `r cor(Gold2020$Price,SP500_2020$Price) `
 ```
 
 ```{r message=FALSE, echo=FALSE, warning=FALSE}
@@ -549,8 +472,6 @@ df3 <- bind_rows(ETH,BTC,Gold,VIX)
 df3 <- df3 %>% select(week,Price,Asset)
 
 SP500_1 <- SP500 %>% select(week,Price) %>% tibble::as_tibble()
-
-
 
 # Asset Returns
 df3 <- df3 %>%
@@ -575,7 +496,6 @@ tidyverse_static_correlations2 <- df3 %>%
   # Correlation and formating
   correlate() 
 
-
 # Get rolling correlations
 tidyverse_rolling_corr2 <- df3 %>%
   # Data wrangling
@@ -593,9 +513,6 @@ tidyverse_rolling_corr2 <- df3 %>%
     col_rename = "rolling_corr"
   )
 
-#
-#tidyverse_rolling_corr2 <- tidyverse_rolling_corr %>% arrange(Asset,week)
-
 # Join static correlations with rolling correlations
 tidyverse_static_correlations2 <- tidyverse_static_correlations2 %>%
   select(term, SP500) %>%
@@ -611,7 +528,7 @@ tidyverse_rolling_corr2 %>%
   # Data
   geom_line(aes(y = static_corr), color = "red") +
   geom_point(aes(y = rolling_corr), alpha = 0.5) +
-  facet_wrap(~ Asset, ncol = 3, scales = "free_y") +
+  facet_wrap(~ Asset, ncol = 2, scales = "free_y") +
   # Aesthetics
   scale_color_tq() +
   labs(
@@ -668,7 +585,7 @@ tidyverse_rolling_corr3 %>%
   # Data
   geom_line(aes(y = static_corr), color = "red") +
   geom_line(aes(y = rolling_corr), alpha = 0.5) +
-  facet_wrap(~ Asset, ncol = 6, scales = "free_y") +
+  facet_wrap(~ Asset, ncol = 2, scales = "free_y") +
   # Aesthetics
   scale_color_tq() +
   labs(
@@ -697,16 +614,7 @@ Andre ting?
 &nbsp;
 &nbsp;
 
-### Sharp ratio
-
-
-&nbsp;
-&nbsp;
-&nbsp;
-&nbsp;
-&nbsp;
-
-### Final Analysis:
+### Final Analysis
 What did you learn about the data? How did you answer the questions? How can you justify your answers?
 
 &nbsp;
@@ -720,7 +628,7 @@ We where not able to run this Rmarkdown in the online edition for some unknown r
 
 It can be a problem kniting this Rmarkdown on the weekendays and until the stock market closes on Monday, since there will be added new data during the weekend for Bitcoin and Ethereum and not for the traditional markets since those are closed. That means that it will be added one more observation for the crypto assets and can cause errors kniting. 
 
-### Kilder: 
+### Kilder 
 
 ###### Quandl API - gull priser
 https://www.quandl.com/data/LBMA/GOLD-Gold-Price-London-Fixing
