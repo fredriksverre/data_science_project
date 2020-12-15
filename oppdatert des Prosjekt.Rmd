@@ -436,41 +436,55 @@ Coefficients of variations (relativ varians):
 **Relativ varians for S&P500:** `r raster::cv(SP500_2020$Price) ` 
 
  
-### Korrelasjon 2020:
+### Correlation:
+
+These graphs are showing correlation between weekly-return.
 
 ```{r message=FALSE, echo=FALSE, warning=FALSE}
 
-ETH_cor1 <- ETH %>% rename( PriceETH = "Price", week2 = "week")
-BTC_cor1 <- BTC %>% rename( PriceBTC = "Price", Asset2  = "Asset")
+# Making data long
+df2 <- bind_rows(ETH,SP500,Gold,VIX)
 
-df2<-cbind(ETH_cor1,BTC_cor1)
+df2 <- df2 %>% select(week,Price,Asset) %>% rename(Asset2 = "Asset")
 
-#### Static correlation
-df4 <- bind_rows(ETH,SP500)
-df4 <- df4 %>% select(week,Price,Asset)
-BTC <- BTC %>% select(week,Price)
+BTC1 <- BTC %>% select(week,Price) %>% tibble::as_tibble()
+
+
+#rm(df)
+
+# Asset Returns
+df2 <- df2 %>%
+  group_by(Asset2) %>%
+  tq_transmute(select     = Price, 
+               mutate_fun = periodReturn,
+               period     = "weekly")
+
+# Baseline Returns
+BTC1 <- BTC1 %>%
+  tq_transmute(select     = Price, 
+               mutate_fun = periodReturn,
+               period     = "weekly")
 
 # Correlation table
-tidyverse_static_correlations <- df4 %>%
+tidyverse_static_correlations <- df2 %>%
   # Data wrangling
-  spread(key = Asset, value = Price) %>%
-  left_join(BTC, by = "week") %>%
+  spread(key = Asset2, value = weekly.returns) %>%
+  left_join(BTC1, by = "week") %>%
+  rename(Bitcoin = weekly.returns) %>%
   select(-week) %>%
   # Correlation and formating
   correlate() 
 
 
-
-#rolling_corr$corr <- correlate(ETH_cor1$PriceETH,BTC_cor1$PriceBTC)
-
-# Making rolling correlation
-rolling_corr <- df2 %>%
+# Get rolling correlations
+tidyverse_rolling_corr <- df2 %>%
   # Data wrangling
-  select(week, PriceBTC,PriceETH,Asset) %>%
+  left_join(BTC1, by = "week") %>%
+  select(week,Asset2, weekly.returns.x, weekly.returns.y ) %>%
   # Mutation
   tq_mutate_xy(
-    x          = PriceBTC,
-    y          = PriceETH,
+    x          = weekly.returns.x,
+    y          = weekly.returns.y,
     mutate_fun = runCor, 
     # runCor args
     n          = 8,
@@ -479,32 +493,40 @@ rolling_corr <- df2 %>%
     col_rename = "rolling_corr"
   )
 
+#
+#tidyverse_rolling_corr2 <- tidyverse_rolling_corr %>% arrange(Asset,week)
+
 # Join static correlations with rolling correlations
 tidyverse_static_correlations <- tidyverse_static_correlations %>%
-  select(term, Price) %>%
-  rename(Asset = term)
+  select(term, Bitcoin) %>%
+  rename(Asset2 = term)
 
-rolling_corr <- rolling_corr %>%
-  left_join(tidyverse_static_correlations, by = "Asset") %>%
-  rename(static_corr = Price)
+tidyverse_rolling_corr2 <- tidyverse_rolling_corr %>%
+  left_join(tidyverse_static_correlations, by = "Asset2") %>%
+  rename(static_corr = Bitcoin)
+
 
 
 # Plot
-rolling_corr %>%
-  ggplot(aes(x = week, color = Asset)) +
+tidyverse_rolling_corr2 %>%
+  ggplot(aes(x = week, color = Asset2)) +
   # Data
   geom_line(aes(y = static_corr), color = "red") +
   geom_point(aes(y = rolling_corr), alpha = 0.5) +
-  facet_wrap(~ Asset, ncol = 12, scales = "free_y") +
+  facet_wrap(~ Asset2, ncol = 3, scales = "free_y") +
   # Aesthetics
   scale_color_tq() +
   labs(
-    title = "6-week Rolling Correlations, Bitcoin vs Ethereum",
+    title = "Bitcoin:8-Weeks Rolling Correlations, Bitcoin vs assets",
     subtitle = "Relationships are dynamic vs static correlation (red line)",
     x = "", y = "Correlation"
   ) +
   theme_tq() +
   theme(legend.position="none")
+
+
+       
+
 
 
 #**BTC/ETH:** `r cor(BTC2020$Price, ETH2020$Price) ` 
@@ -516,6 +538,88 @@ rolling_corr %>%
 #**Gold/SP500:** `r cor(Gold2020$Price,SP500_2020$Price) `
 ```
 
+```{r message=FALSE, echo=FALSE, warning=FALSE}
+
+# Making data long
+df3 <- bind_rows(ETH,BTC,Gold,VIX)
+
+df3 <- df3 %>% select(week,Price,Asset)
+
+SP500_1 <- SP500 %>% select(week,Price) %>% tibble::as_tibble()
+
+
+
+# Asset Returns
+df3 <- df3 %>%
+  group_by(Asset) %>%
+  tq_transmute(select     = Price, 
+               mutate_fun = periodReturn,
+               period     = "weekly")
+
+# Baseline Returns
+SP500_1 <- SP500_1 %>%
+  tq_transmute(select     = Price, 
+               mutate_fun = periodReturn,
+               period     = "weekly")
+
+# Correlation table
+tidyverse_static_correlations2 <- df3 %>%
+  # Data wrangling
+  spread(key = Asset, value = weekly.returns) %>%
+  left_join(SP500_1, by = "week") %>%
+  rename(SP500 = weekly.returns) %>%
+  select(-week) %>%
+  # Correlation and formating
+  correlate() 
+
+
+# Get rolling correlations
+tidyverse_rolling_corr2 <- df3 %>%
+  # Data wrangling
+  left_join(SP500_1, by = "week") %>%
+  select(week,Asset, weekly.returns.x, weekly.returns.y ) %>%
+  # Mutation
+  tq_mutate_xy(
+    x          = weekly.returns.x,
+    y          = weekly.returns.y,
+    mutate_fun = runCor, 
+    # runCor args
+    n          = 12,
+    use        = "pairwise.complete.obs",
+    # tq_mutate args
+    col_rename = "rolling_corr"
+  )
+
+#
+#tidyverse_rolling_corr2 <- tidyverse_rolling_corr %>% arrange(Asset,week)
+
+# Join static correlations with rolling correlations
+tidyverse_static_correlations2 <- tidyverse_static_correlations2 %>%
+  select(term, SP500) %>%
+  rename(Asset = term)
+
+tidyverse_rolling_corr2 <- tidyverse_rolling_corr2 %>%
+  left_join(tidyverse_static_correlations2, by = "Asset") %>%
+  rename(static_corr = SP500)
+
+# Plot
+tidyverse_rolling_corr2 %>%
+  ggplot(aes(x = week, color = Asset)) +
+  # Data
+  geom_line(aes(y = static_corr), color = "red") +
+  geom_point(aes(y = rolling_corr), alpha = 0.5) +
+  facet_wrap(~ Asset, ncol = 3, scales = "free_y") +
+  # Aesthetics
+  scale_color_tq() +
+  labs(
+    title = " S&P500: 12-Weeks Rolling Correlations, SP500 vs assets",
+    subtitle = "Relationships are dynamic vs static correlation (red line)",
+    x = "", y = "Correlation"
+  ) +
+  theme_tq() +
+  theme(legend.position="none")
+
+```
 
 Her har vi kjørt korrelsasjon mellom Bitcoin og den nevnte Asset klassen nedenfor:
 
