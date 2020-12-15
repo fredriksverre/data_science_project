@@ -15,7 +15,7 @@ library(quantmod)
 #BTC <- BTC %>% select("Index","BTC-USD.Close") %>% rename(Date ="Index", Price = "BTC-USD.Close") %>% mutate(Asset = "BitcoinPrice")
 
 #define the keywords
-keywords=c("Bitcoin")
+keywords=c("Bitcoin Search")
 #set the geographic area: DE = Germany
 country=c('')
 #set the time window
@@ -33,11 +33,30 @@ head(time_trend)
 time_trend <- time_trend %>% select(date,hits,keyword) %>% rename(Date ="date", Price = "hits", Asset = "keyword") %>% filter(Date>= "2016-01-04")
 
 
-#ggplot(data=time_trend, aes(x=Date, y=Price,group=Asset,col=Asset))+
- # geom_line() + facet_wrap(~Asset) + xlab('Time') + ylab('Relative Interest')  +
- # theme(legend.title = element_blank(),legend.position="bottom",legend.text=element_text(size=12))+ggtitle("Google Search Volume")
-#plot
+#####################################################################
 
-ggplot(data=time_trend, aes(x=Date, y=Price,group=Asset,col=Asset))+
-  geom_line() + facet_wrap(~Asset) + xlab('Time') + ylab('Relative Interest')  +
-ggtitle("Google Search Volume")
+BTC2<-BTC %>% mutate(Asset="Bitcoin Price")
+BTC2$week <- as.POSIXct(paste(BTC2$week, BTC2$Time), format="%Y-%m-%d")
+
+
+
+time_trend<-time_trend %>%mutate(Price= Price*150 )
+
+
+names(time_trend)[names(time_trend) == 'Date'] <- 'week' #Endrer navn på week data 
+
+test26<- rbind(BTC2,time_trend)
+
+vs<-test26 %>% 
+  ggplot(aes(x=week, y=Price, group=Asset)) +
+  geom_line(aes(color=Asset))+
+  ylab(expression("Bitcoin Price dollar")) +
+  xlab("Date") +
+  labs(title = "Bitcoin Price vs Searches at Google",
+       subtitle = "",
+       caption = "")+theme(plot.title = element_text(hjust = 0.5))
+vs<-vs+ scale_y_continuous(sec.axis = sec_axis(~./200, name = ""))
+vs
+
+
+
