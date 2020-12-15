@@ -39,7 +39,7 @@ library(gtrendsR) #laste inn data google
 
 
 ![Bitvoin bilde](https://thumbor.forbes.com/thumbor/960x0/https%3A%2F%2Fspecials-images.forbesimg.com%2Fdam%2Fimageserve%2F908633080%2F960x0.jpg%3Ffit%3Dscale)
-Sourse:https://www.forbes.com/sites/forbesfinancecouncil/2018/12/05/the-top-10-risks-of-bitcoin-investing-and-how-to-avoid-them/?sh=55fff8a52407
+Picture source:https://www.forbes.com/sites/forbesfinancecouncil/2018/12/05/the-top-10-risks-of-bitcoin-investing-and-how-to-avoid-them/?sh=55fff8a52407
 &nbsp;
 &nbsp;
 &nbsp;
@@ -53,7 +53,7 @@ Sourse:https://www.forbes.com/sites/forbesfinancecouncil/2018/12/05/the-top-10-r
 &nbsp;
 
 
-### Overview and Motivation: 
+### Overview and Motivation 
 Provide an overview of the project goals and the motivation for it. Consider that this will be read by people who did not see your project proposal.
 
 Vi er en gruppe med samfunnsøkonomi studenter som er interessert i finans. Vi synes ofte det som er nytt er spennede og Bitcoin er da et asset som faller under den kateogrien for oss. Bitcoin har fått mye omtale i media over de siste årene, både positivt og negativt, kanskje mest negativt. Ut i fra nyhetsbilde kan det være vanskelig å si om vi får fremstilt objektive synspunkter eller om nyhetene er søkt. Vi ønsker derfor å se litt nærmere på assete og undersøke *"Er Bitcoin noe man burde holde seg unna fordi det er risiko fylt og man kan tape penger"?* *"Eller kan det være en mulighet for å tjene penger og diversifisere porteføljen sin"?* *"Finnes det andre risiko elementer ved investeringen som ikke er direkte knyttet til kurssvingninger?* Vi håper i løpet av analysen vår å kunne finne svar på disse spørsmålene.
@@ -63,7 +63,7 @@ Vi er en gruppe med samfunnsøkonomi studenter som er interessert i finans. Vi s
 &nbsp;
 &nbsp;
 
-### Related Work:
+### Related Work
 Anything that inspired you, such as a paper, a web-site, or something we discussed in class.
 
 &nbsp;
@@ -71,7 +71,7 @@ Anything that inspired you, such as a paper, a web-site, or something we discuss
 &nbsp;
 &nbsp;
 
-### Initial Questions: 
+### Initial Questions
 What questions are you trying to answer? How did these questions evolve over the course of the project? What new questions did you consider in the course of your analysis?
 
 &nbsp;
@@ -274,7 +274,7 @@ df <- df %>% group_by(Asset)%>% mutate(cumulative = cumsum(log_returns))
 #abline(lmTemp) #Add a regression line
 ```
 
-### Data:
+### Data
 Source, scraping method, cleanup, etc.
 Exploratory Analysis: What visualizations did you use to look at your data in different ways? What are the different statistical methods you considered? Justify the decisions you made, and show any major changes to your ideas. How did you reach these conclusions?
 
@@ -337,13 +337,13 @@ server <- function(input,output){
 shinyApp(ui, server)
 ```
 
-### Coefficients of variations 2016-2020:
+### Risk measurment 2016-2020
 
 Vi lager en graf som viser avkastningen til alle Assetene. Vi kan da tydelig se hvem som har hatt størst avkastning siden 2016 av disse Asset klassene, men kommer denne avkastningen uten risiko? 
 
 Hvis vi ser på coefficients of variations kan vi tydelig se at de aktivaene som har hatt høyest avkastning også definitivt har størst risiko knyttet til seg. Disse koeffisientene kan lese slik at de som har minst sum = minst risiko. Koeffisientene er på relativ form det vil si at de kan ikke være over 100 eller mindre enn 0, og vi kan direkte sammenligne tallene opp i mot hverandre for å si noe om risikoen.
 
-Coefficients of variations (relativ varians):
+Coefficients of variations 2016-2020 (relative variance):
 
 **Relativ varians for Bitcoin:** `r raster::cv(BTC$Price) ` 
 
@@ -425,21 +425,21 @@ df2 %>%
 
 ```
 
-### Coefficients of variations 2020:
+### Risk measurment 2020
 
 
-Coefficients of variations (relativ varians):
+Coefficients of variations for the year 2020 (relative variance):
 
-**Relativ varians for Bitcoin:** `r raster::cv(BTC2020$Price) ` 
+**Relative variance for Bitcoin:** `r raster::cv(BTC2020$Price) ` 
 
-**Relativ varians for Ethereum:** `r raster::cv(ETH2020$Price) ` 
+**Relative variance for Ethereum:** `r raster::cv(ETH2020$Price) ` 
 
-**Relativ varians for Gold:** `r raster::cv(Gold2020$Price) ` 
+**Relative variance for Gold:** `r raster::cv(Gold2020$Price) ` 
 
-**Relativ varians for S&P500:** `r raster::cv(SP500_2020$Price) ` 
+**Relative variance for S&P500:** `r raster::cv(SP500_2020$Price) ` 
 
  
-### Correlation:
+### Correlation
 
 These graphs are showing correlation between weekly-return.
 
