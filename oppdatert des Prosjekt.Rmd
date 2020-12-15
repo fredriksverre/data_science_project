@@ -434,7 +434,7 @@ Coefficients of variations (relativ varians):
  
 ### Korrelasjon 2020:
 
-```{r message=FALSE, echo=FALSE}
+```{r message=FALSE, echo=FALSE, warning=FALSE}
 
 ETH_cor1 <- ETH %>% rename( PriceETH = "Price", week2 = "week")
 BTC_cor1 <- BTC %>% rename( PriceBTC = "Price", Asset2  = "Asset")
