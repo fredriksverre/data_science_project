@@ -1,3 +1,5 @@
+library(shiny)
+
 ui <- fluidPage(
   titlePanel(title=h4("ASSET", align="center")),
   sidebarLayout(
@@ -16,6 +18,6 @@ server <- function(input,output){
   
   output$plot2<-renderPlot({
     req(dat())
-    ggplot(data=dat()%>%group_by(Asset)%>% mutate(culinteractive=cumsum(log_returns)),aes(x=week,y=culinteractive),group=Asset)+geom_line(aes(color=Asset))},height = 300,width = 500)}
+    ggplot(data=dat()%>%group_by(Asset)%>% mutate(culinteractive=cumsum(log_returns)- lag(log_returns, default = first(log_returns))),aes(x=week,y=culinteractive),group=Asset)+geom_line(aes(color=Asset))},height = 300,width = 500)}
 shinyApp(ui, server)
 
