@@ -11,6 +11,8 @@ runtime: shiny
 date: "`r format(Sys.time(), '%d %B %Y')`"
 ---
 
+Andreas gjorde dette test
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
