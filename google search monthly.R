@@ -6,16 +6,7 @@ library(readr)
 library(quantmod)
 
 #define the keywords
-#keywords=c("BTC","Bitcoin","Buy bitcoin")
-
-#
-#BTC <- getSymbols("BTC-USD", auto.assign=FALSE, from="2015-01-04", src='yahoo')
-#
-#BTC <- zoo::fortify.zoo(BTC)
-#BTC <- BTC %>% select("Index","BTC-USD.Close") %>% rename(Date ="Index", Price = "BTC-USD.Close") %>% mutate(Asset = "BitcoinPrice")
-
-#define the keywords
-keywords=c("Bitcoin Search")
+keywords=c("Bitcoin")
 #set the geographic area: DE = Germany
 country=c('')
 #set the time window
@@ -72,7 +63,7 @@ test26<- rbind(BTC2,time_trend)
 vs<-test26 %>% 
   ggplot(aes(x=month, y=mean, group=Asset)) +
   geom_line(aes(color=Asset))+
-  ylab(expression("Bitcoin Price dollar")) +
+  ylab(expression("Bitcoin Price $")) +
   xlab("Date") +
   labs(title = "Bitcoin Price vs Searches at Google",
        subtitle = "",

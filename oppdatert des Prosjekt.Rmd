@@ -1,5 +1,6 @@
 ---
 title: "Can Bitcoin be an alternative hedge to gold in a recession?"
+author: Alf Henrik Heggelund, Fredrik Sverre Nilssen & Andreas Reiten Skundberg
 output:
   html_document:
     toc: true
@@ -11,7 +12,6 @@ runtime: shiny
 date: "`r format(Sys.time(), '%d %B %Y')`"
 ---
 
-Andreas gjorde dette test
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -113,7 +113,7 @@ SP500 <- SP500 %>% select("Index","GSPC.Close") %>% mutate(Asset = "S&P500") %>%
 VIX <- zoo::fortify.zoo(VIX)
 VIX <- VIX %>% select("Index","VIX.Close") %>% mutate(Asset = "VixIndex") %>% rename(Date ="Index", Price = "VIX.Close")
 
-# Lager ny variabel som sorterer ukentlig
+# Making new variable that sorts weekly
 BTC$week <- floor_date(BTC$Date, "week")
 # Grouping then new variable week and taking the mean to get weekly price
 BTC <- BTC %>%
@@ -214,8 +214,6 @@ df <- bind_rows(ETH,BTC,SP500,Gold,VIX)
 # Making log_returns cumulative
 df <- df %>% group_by(Asset)%>% mutate(cumulative = cumsum(log_returns))
 
-# CV = sd/mean*100, den sier noe om hvor store svingninger det er i aksjen men ikke noe om avkastning(potential return).
-
 ```
 
 ### Data
@@ -247,13 +245,11 @@ Så summerer grouperby Asset og summer opp alle log returns med cumsum funksjone
 p<-df %>% 
   ggplot(aes(x=week, y=cumulative, group=Asset)) +
   geom_line(aes(color=Asset))+
-  ylab(expression("Vekst på kumulativ form")) +
+  ylab(expression("Change on cumulative form")) +
   xlab("Date") +
-  labs(title = "Logaritmisk avkastning på kumulativ form fra 2016-2020",
+  labs(title = "Logaritmic return on cumulativ form from 2016-2020",
        subtitle = "",
        caption = "")+theme(plot.title = element_text(hjust = 0.5))
-
-p<-p+scale_y_continuous(sec.axis = sec_axis(~./100, name = "[%] Tissen til alf er liten")) # adds one more y aksis to the plot showing the prosentage
 
 p
 ```
@@ -308,16 +304,11 @@ Her har vi kjørt korrelsasjon mellom Bitcoin og den nevnte Asset klassen nedenf
 Korrelsasjonen vi har gjørt mellom Bitcoin og S&P500 indexen i tidsrommet 2016 til dagens dato har vi funnet at de korrelerer veldig høyt. Gull og S&P500 korrelerer også høyt men lavere enn Bitcoin/S&P500. Slik at ut i fra disse tallene ser det ikke ut som at Bitcoin kan være en bedre hedge/diversifisering en gold kun med tanke på risiko. Dette resultat kan være anerledes om vi ser på andre år eksplisit.
 
 ```{r message=FALSE, echo=FALSE}
-# Korrelasjon 2020
+# Filter for year 2020
 ETH2020 <- ETH %>% filter(week>= "2020-01-01")
 BTC2020 <- BTC %>% filter(week>= "2020-01-01")
 Gold2020 <- Gold %>% filter(week>= "2020-01-01")
 SP500_2020 <- SP500 %>% filter(week>= "2020-01-01")
-
-#cor(BTC2020$Price,ETH2020$Price) #BTC/ETH
-#cor(BTC2020$Price,Gold2020$Price) #BTC/Gold 
-#cor(BTC2020$Price,SP500_2020$Price) #BTC/SP500 
-#cor(Gold2020$Price,SP500_2020$Price) #Gold /SP500
 
 # Taking log of df
 log_returns2 <- diff(log(BTC2020$Price), lag=1)
@@ -348,24 +339,15 @@ SP500_2020 <- cbind(SP500_2020, log_returns2)
 df2<-bind_rows(BTC2020,Gold2020,SP500_2020)
 # Making cumulative count
 df2 <- df2 %>% select(week,Price,Asset,log_returns2) %>% group_by(Asset)%>% mutate(cumulative = cumsum(log_returns2))
-# Plotting. Ser på avkastning til Gull og Bitcoin i 2020
+# Plotting. 
 df2 %>% 
   ggplot(aes(x=week, y=cumulative, group=Asset)) +
   geom_line(aes(color=Asset))+
-  ylab(expression("Vekst på kumulativ form")) +
+  ylab(expression("Return on cumulativ form")) +
   xlab("Date") +
-  labs(title = "Logaritmisk avkastning på kumulativ form for 2020",
+  labs(title = "Logaritmic return on cumulative form 2020",
        subtitle = "",
        caption = "")+theme(plot.title = element_text(hjust = 0.5))
-
-
-#**BTC/ETH:** `r cor(BTC$Price, ETH$Price) `
-
-#**BTC/Gold:** `r cor(c(Gold$Price,NA),BTC$Price,use='complete.obs')` denne funker
-
-#**BTC/SP500:** `r cor(c(SP500$Price,NA),BTC$Price,use='complete.obs')` denne funker
-
-#**Gold/SP500:** `r cor(Gold$Price,SP500$Price) `
 
 ```
 
@@ -387,84 +369,6 @@ Coefficients of variations for the year 2020 (relative variance):
 
 These graphs are showing correlation between weekly-return.
 
-```{r message=FALSE, echo=FALSE, warning=FALSE}
-
-# Making data long
-df2 <- bind_rows(ETH,SP500,Gold,VIX)
-
-df2 <- df2 %>% select(week,Price,Asset) %>% rename(Asset2 = "Asset")
-
-BTC1 <- BTC %>% select(week,Price) %>% tibble::as_tibble()
-
-# Asset Returns
-df2 <- df2 %>%
-  group_by(Asset2) %>%
-  tq_transmute(select     = Price, 
-               mutate_fun = periodReturn,
-               period     = "weekly")
-
-# Baseline Returns
-BTC1 <- BTC1 %>%
-  tq_transmute(select     = Price, 
-               mutate_fun = periodReturn,
-               period     = "weekly")
-
-# Correlation table
-tidyverse_static_correlations <- df2 %>%
-  # Data wrangling
-  spread(key = Asset2, value = weekly.returns) %>%
-  left_join(BTC1, by = "week") %>%
-  rename(Bitcoin = weekly.returns) %>%
-  select(-week) %>%
-  # Correlation and formating
-  correlate() 
-
-
-# Get rolling correlations
-tidyverse_rolling_corr <- df2 %>%
-  # Data wrangling
-  left_join(BTC1, by = "week") %>%
-  select(week,Asset2, weekly.returns.x, weekly.returns.y ) %>%
-  # Mutation
-  tq_mutate_xy(
-    x          = weekly.returns.x,
-    y          = weekly.returns.y,
-    mutate_fun = runCor, 
-    # runCor args
-    n          = 8,
-    use        = "pairwise.complete.obs",
-    # tq_mutate args
-    col_rename = "rolling_corr"
-  )
-
-
-# Join static correlations with rolling correlations
-tidyverse_static_correlations <- tidyverse_static_correlations %>%
-  select(term, Bitcoin) %>%
-  rename(Asset2 = term)
-
-tidyverse_rolling_corr2 <- tidyverse_rolling_corr %>%
-  left_join(tidyverse_static_correlations, by = "Asset2") %>%
-  rename(static_corr = Bitcoin)
-
-# Plot
-tidyverse_rolling_corr2 %>%
-  ggplot(aes(x = week, color = Asset2)) +
-  # Data
-  geom_line(aes(y = static_corr), color = "red") +
-  geom_point(aes(y = rolling_corr), alpha = 0.5) +
-  facet_wrap(~ Asset2, ncol = 2, scales = "free_y") +
-  # Aesthetics
-  scale_color_tq() +
-  labs(
-    title = "Bitcoin:8-Weeks Rolling Correlations, Bitcoin vs assets",
-    subtitle = "Relationships are dynamic vs static correlation (red line)",
-    x = "", y = "Correlation"
-  ) +
-  theme_tq() +
-  theme(legend.position="none")
-
-```
 
 ```{r message=FALSE, echo=FALSE, warning=FALSE}
 
@@ -652,20 +556,17 @@ https://finance.yahoo.com/quote/%5EGSPC/history?period1=1446768000&period2=16046
 
 ```{r message=FALSE, echo=FALSE}
 #define the keywords
-keywords=c("Bitcoin Search")
+keywords=c("Bitcoin")
 #set the geographic area: DE = Germany
 country=c('')
-#set the time window
-#time=("2015-01-01 2020-12-03")
-#time=("2015-01-01 today")
+# Setting time frame
 time = ("today+5-y")
 #set channels 
 channel='web'
-
+# Pulling the data from google
 trends = gtrends(keywords, gprop =channel,geo=country, time = time )
-#select only interst over time 
+#select only interest over time 
 time_trend=trends$interest_over_time
-head(time_trend)
 
 time_trend <- time_trend %>% select(date,hits,keyword) %>% rename(Date ="date", Price = "hits", Asset = "keyword") %>% filter(Date>= "2016-01-04")
 
@@ -674,27 +575,48 @@ time_trend <- time_trend %>% select(date,hits,keyword) %>% rename(Date ="date", 
 
 BTC2<-BTC %>% mutate(Asset="Bitcoin Price")
 BTC2$week <- as.POSIXct(paste(BTC2$week, BTC2$Time), format="%Y-%m-%d")
-BTC2 <-BTC2%>%select(week,Price,Asset)
 
+# Making monthly data
+BTC2$month <- floor_date(BTC2$week, "month")
+# Grouping then new variable month and taking the mean to get monthly price
+BTC2 <- BTC2 %>%
+  group_by(month) %>%
+  summarize(mean = mean(Price))
 
+# Making numeric
+time_trend$Price <- as.numeric(time_trend$Price)
 
-time_trend<-time_trend %>%mutate(Price= Price*200 )
+# Making monthly data
+time_trend$month <- floor_date(time_trend$Date, "month")
 
+# Grouping then new variable week and taking the mean to get monthly price
+time_trend <- time_trend %>%
+  group_by(month) %>%
+  summarize(mean = mean(Price))
 
-names(time_trend)[names(time_trend) == 'Date'] <- 'week' #Endrer navn på week data 
+# Making google search fit the scale on the graph
+time_trend<-time_trend %>%mutate(mean= mean*200 )
+# Naming assets
+time_trend <- time_trend %>% mutate(Asset = "Google Search ")
+# Naming assets
+BTC2 <- BTC2 %>% mutate(Asset = "Bitcoin Price")
 
+# Changing name on time_trend from date to week
+names(time_trend)[names(time_trend) == 'Date'] <- 'week' 
+# Making data long
 test26<- rbind(BTC2,time_trend)
-
+# Plotting
 vs<-test26 %>% 
-  ggplot(aes(x=week, y=Price, group=Asset)) +
+  ggplot(aes(x=month, y=mean, group=Asset)) +
   geom_line(aes(color=Asset))+
-  ylab(expression("Bitcoin Price dollar")) +
+  ylab(expression("Bitcoin Price $")) +
   xlab("Date") +
   labs(title = "Bitcoin Price vs Searches at Google",
-       subtitle = "",
+       subtitle = "Graph:Monthly data",
        caption = "")+theme(plot.title = element_text(hjust = 0.5))
-vsplot<-vs+ scale_y_continuous(sec.axis = sec_axis(~./200, name = ""))
-vsplot
+vs<-vs+ scale_y_continuous(sec.axis = sec_axis(~./200, name = ""))
+vs
+
 ```
 
 
