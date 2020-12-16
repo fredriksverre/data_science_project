@@ -60,9 +60,9 @@ time_trend <- time_trend %>%
 #
 time_trend<-time_trend %>%mutate(mean= mean*200 )
 
-time_trend <- time_trend %>% mutate(Asset = "Google search")
+time_trend <- time_trend %>% mutate(Asset = "Google Search ")
 
-BTC2 <- BTC2 %>% mutate(Asset = "Bitcoin")
+BTC2 <- BTC2 %>% mutate(Asset = "Bitcoin Price")
 
 #
 names(time_trend)[names(time_trend) == 'Date'] <- 'week' #Endrer navn på week data 
