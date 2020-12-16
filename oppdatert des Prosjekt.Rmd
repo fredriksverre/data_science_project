@@ -26,10 +26,10 @@ library(PerformanceAnalytics)
 library(xts)
 library(tidyquant)
 library(cranlogs)   # For inspecting package downloads over time
-library(corrr)      # Tidy correlation tables and correlation plottings
+library(corrr)      # Tidy correlation tables and correlation plotting
 library(cowplot) 
 
-library(gtrendsR) #laste inn data google
+library(gtrendsR) #Downloading Google Data
 
 
 ```
@@ -58,7 +58,19 @@ Picture source:https://www.forbes.com/sites/forbesfinancecouncil/2018/12/05/the-
 ### Overview and Motivation 
 Provide an overview of the project goals and the motivation for it. Consider that this will be read by people who did not see your project proposal.
 
-Vi er en gruppe med samfunnsøkonomi studenter som er interessert i finans. Vi synes ofte det som er nytt er spennede og Bitcoin er da et asset som faller under den kateogrien for oss. Bitcoin har fått mye omtale i media over de siste årene, både positivt og negativt, kanskje mest negativt. Ut i fra nyhetsbilde kan det være vanskelig å si om vi får fremstilt objektive synspunkter eller om nyhetene er søkt. Vi ønsker derfor å se litt nærmere på assete og undersøke *"Er Bitcoin noe man burde holde seg unna fordi det er risiko fylt og man kan tape penger"?* *"Eller kan det være en mulighet for å tjene penger og diversifisere porteføljen sin"?* *"Finnes det andre risiko elementer ved investeringen som ikke er direkte knyttet til kurssvingninger?* Vi håper i løpet av analysen vår å kunne finne svar på disse spørsmålene.
+Our group consist of three economics student that wanted to explore an issue related to economics. Rather than reexploring traditional economical facts or a well-established phenomenon we set out to uncover a somewhat unexplored issue. An issue that might be more evident during the recent economic recession caused by the 2020 Pandemic. 
+
+This recession, as well as any other makes the phenomenon of safe havens resurface. Financial safe havens are assets that retain or increases in value during an economic downturn. Examples of proven safe havens would be precious metals like gold, currencies as the US dollar, swiss franc and the Japanese yen, or government bonds. 
+
+With the rising popularity of cryptocurrencies over the past years we set out to investigate whether cryptocurrencies, particularly Bitcoin had become a safe haven during the Covid-19 recession. 
+
+The underlying motivation for choosing this issue for the data science project was our own experience during the covid-19 recession. As amateur investors in the stock market and cryptocurrencies we experienced the market downswing first-hand as our portfolio decreased in value. Therefore, we were left wondering whether redirecting investments towards bitcoin would prove be a beneficial hedge and risk diversification. 
+
+With our newfound knowledge and ability to use data science to investigate this issue, we wanted to create a reliable report answering this question. By analysing and visualising accessible data we would prove or disprove our initial hypothesis. 
+
+
+
+
 
 &nbsp;
 &nbsp;
@@ -68,6 +80,15 @@ Vi er en gruppe med samfunnsøkonomi studenter som er interessert i finans. Vi s
 ### Related Work
 Anything that inspired you, such as a paper, a web-site, or something we discussed in class.
 
+The safe haven properties of cryptocurrencies have been the inspiration of several studies, and the pandemic and the following market turbulence marked the first opportunity to examine this properly. 
+
+Bitcoin as a decentralized digital currency with limited supply have already been labelled a safe haven by some investors. 
+The American investor Tyler Winklevoss tweeted on the 27th of February 2020.
+
+[“At some point people will wake up and realize that bitcoin is the best safe haven asset the world has ever seen. Until then, opportunity abounds.”
+ ](https://twitter.com/tyler/status/1232875921025249280) 
+
+
 &nbsp;
 &nbsp;
 &nbsp;
@@ -75,6 +96,37 @@ Anything that inspired you, such as a paper, a web-site, or something we discuss
 
 ### Initial Questions
 What questions are you trying to answer? How did these questions evolve over the course of the project? What new questions did you consider in the course of your analysis?
+
+
+The key issue in this report whether Bitcoin have become a safe haven. Before analysing the data, it would be helpful to see if Bitcoin possess the characteristics of a safe haven asset. 
+Safe havens have:
+
+High liquidity: It easily can be converted into cash. 
+
+Limited supply: Maintains its value due to the scarcity of the asset.
+
+Sustained demand: The asset keeps it high demand.
+
+Long term performance: The assets utilization is upheld long term 
+
+Persistence: The assets quality does not decline
+
+Bitcoin do hold these characteristics. Bitcoin maintains a high trade volume, with low fees and a market that is always open. The Bitcoin supply is limited to 21 million in total and will undoubtedly be less than its demand. Bitcoin continues to be the leader in the cryptocurrency market and is expected to maintain this position. The utilization of the asset is still somewhat unclear as investor tends to hold their investment rather than spending it. 
+Finally, the quality of digital currency does not decline in any way.    
+
+Now that the safe haven properties of bitcoin have been cleared, the overall evaluation of bitcoin remained. Prior to further analysing bitcoin as a safe haven, we wanted a complete overview of Bitcoin as an investment. Answering questions like:
+
+What were the rate of returns of Bitcoin compared to other assets? 
+How did it compare to rivaling cryptocurrencies, the overall stock market, or a safe haven asset such as gold?  
+How to these markets act in times of market turbulence and expected volatility? 
+Is bitcoin a valuable investment, and how have the rates of return developed?
+Furthermore, who are investing in Bitcoin? Are bitcoin investors amateurs jumping the bandwagon on a hype without a clear understanding of its qualities and value. Or calculated investors making larger investments envisioning a steady rate of return and future performance.  
+
+These questions require different approaches and a variety data to be analysed. This report will provide an overall assessment of bitcoins progress, qualities and its response to market volatility. Over the course of the project our initial question became part of a bigger analysis, which aimed to be as objective as possible. 
+
+
+
+
 
 &nbsp;
 &nbsp;
@@ -220,27 +272,25 @@ df <- df %>% group_by(Asset)%>% mutate(cumulative = cumsum(log_returns))
 
 ### Data
 Source, scraping method, cleanup, etc.
-Exploratory Analysis: What visualizations did you use to look at your data in different ways? What are the different statistical methods you considered? Justify the decisions you made, and show any major changes to your ideas. How did you reach these conclusions?
 
-Det første vi tok for oss når vi startetet prosjektet var å lete etter data fra API´er. Vi fant etterhvert ut at dette ikke var så enkelt som vi trodde. En god del API´er koster penger og ikke alle er like enkle i bruk.
+Finding data on this topic initially seemed like a manageable task. Cryptocurrency and other financial markets rely on constant flow of publicly accessible data to function properly. 
+Using APIs was the preferred method but found several obstacles which complicated the process. Some APIs costs money and others proved difficult to operate. 
 
-Vi fant så frem til yahoo finance å begynte med lastet ned csv filer fra yahoo og så lastet de inn i R. Vi fant etterhvert ut at vi kunne importere filene direkte inn i R ved riktig kode. Dette gjør det mye enklere for alle som skal åpne prosjektet vårt, samtidig som det også gjør at dataen blir dynamisk. 
+Yahoo finance is a financial platform that provide reliable reports and a global following. Yahoo finance gave access to CSV-files on the S&P 500, Bitcoin, Ethereum and VIX-index.
+By use of the correct R-code opened up the possibility to import these files directly into R-studio. This makes the report more user-orientated and also creates a dynamic code.  
+The data set received from Yahoo on gold prices revealed several gaps. Involving missing dates and values. We deemed it unusable and had to revisit the application of APIs. 
+Through Quandl it was manageable to make use of an API and retrieve data on gold from the London Bullion Market. 
 
-Data på gull fra yahoo var det store hull i, slik at den kunne vi ikke bruke disse. Vi fant en API som hadde data på gull å valgte å bruke den. 
+The data acquired from Yahoo finance came in a xts-format. Which made the date variable appear in a POXEIT-format. This format was somewhat new to us, but by use of the Zoo package we managed to transform it into a format more suited for our abilities. 
 
-Dataen vi hente fra yahoo kom i et xts format, som gjør at dato variabelen er i POXEIT format og er noe anerledes en vi er vant til å jobbe med. Vi valgte derfor å bruke zoo pakken til å gjøre daten om til det som er "normalt datasett" for oss. 
+After the data was in the correct formats, we used the dplyr package to manipulate and create pipeline for the data. The data frames contained variables irrelevant to the analysis. These variables were removed by choosing columns with the select function. Then adding new variables to specify each asset. This makes it more convenient to plot the data frame later. 
 
-I neste rekke bruker vi dplyr til å pipe dataen. Vi velger kolonner ved select funksjonen da vi ikke trenger alle variablene som følger med dataen. Så velger vi å legge inn en ny variabel som forteller hvilken Asset det gitte datasette er. Dette gjør vi for at vi enkelt skal kunne plotte dataen senere. 
+An obstacle when comparing cryptocurrency markets to other financial markets is that normal markets have limited trading hours and closed during the weekend. The cryptocurrency market is unlimited and open all year. Observations for Bitcoin and Ethereum exceeded the observations for gold and the S&P 500 and VIX-indexes. This obstacle was solved manipulation the data into weekly observations. By creating a mean of all the daily data with the summarize function within a week to generate a weekly price. The floor_date function made this possible, which makes all values within a week set to the same date assigned to a week variable. Then applying the group_by function arrange the data. 
 
-I neste steg gjør vi om dataen fra daglig observasjoner til ukentlige. Vi gjør dette ved hjelp av "floor_date" funksjonen som gjør at alle observasjoner innen for hver uke blir satt til en lik dato. Feks alle observasjoner i uke 1 får datoen 01.01.2020 og lager ny variabel av dette som vi kaller for week
+The data frame from the London Bullion Market contained several N/A values. Removing these was done with the omit function. 
 
-Deretter piper vi dataen ved group_by funksjonen som gjør at dataen blir groupet med hensyns week variabelen. Dette vil si at hver uke vil bli seperat fra hverandre. Så bruker vi summarize funksjonen for å ta et gjennomsnitt av hver uke. Vi får da en ukentlig gjennomsnitts pris. Må endre navnet i datasette igjen slik at det blir riktig når vi skal gjøre dataen long.
-
-På gull dataen må vi fjerne N/A verdier fra datasettet for å kunne bruke det og gjør dette med "omit" funkjsonen.
-
-Her tar vi log observasjon1/log observasjon 2. Når vi gjør dette får vi den logaritmiske avkastningen fra uke til uke. Bruke cbind for å gjøre om til datasett igjen. Bruker rbind til å legge inne observasjonen 0 øverst i datasettet fordi at det mangler en observasjon for å kunne cbinde det orginale datasettet med logreturns. 
-
-Så summerer grouperby Asset og summer opp alle log returns med cumsum funksjonen. Vi har nå dataen på cumulativ form slik at vi kan sammenligne avkastningen mellom de forskjellen Assetene.
+To visualise the rate of returns cumulatively it was necessary to calculate the logarithmic returns each week. By dividing the log of the first observation by the log of the following observation. (Log observation 1/ log observation 2). Then recreating the data frame using cbind. To do this it was necessary to use rbind function to enter an observation zero, to be able to connect the original data frame with the logarithmic returns. 
+Eventually using the cumsum function to summarise all grouped assets up against the logarithmic returns. Now all the data is cumulative, and it is possible to compare the returns of each asset. 
 
 ```{r message=FALSE, echo=FALSE}
 # Plotting
