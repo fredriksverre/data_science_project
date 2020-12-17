@@ -41,9 +41,10 @@ BTC$week <- floor_date(BTC$Date, "week")
 # Grouping then new variable week and taking the mean to get weekly price
 BTC <- BTC %>%
   group_by(week) %>%
-  summarize(mean = mean(Price))
+  summarize(mean = mean(Price)) %>% rename(Price = "mean") %>% mutate(Asset = "Bitcoin")
+
 #
-BTC <- BTC %>% rename(Price = "mean") %>% mutate(Asset = "Bitcoin")
+#BTC <- BTC %>% rename(Price = "mean") %>% mutate(Asset = "Bitcoin")
 
 # 
 ETH$week <- floor_date(ETH$Date, "week")
@@ -130,6 +131,7 @@ log_returns <- cbind(log_returns)
 log_returns <- rbind(0,log_returns)
 
 VIX <- cbind(VIX, log_returns)
+
 
 # Making data long
 df <- bind_rows(ETH,BTC,SP500,Gold,VIX)
@@ -489,3 +491,35 @@ vs<-test26 %>%
        caption = "")+theme(plot.title = element_text(hjust = 0.5))
 vs<-vs+ scale_y_continuous(sec.axis = sec_axis(~./200, name = ""))
 vs
+
+
+######################
+rm(BTC3)
+
+# BTC Returns
+BTC3 <- BTC %>%
+  tq_transmute(select     = Price, 
+               mutate_fun = periodReturn,
+               period     = "weekly") %>% mutate(Asset = "Bitcoin") %>% group_by(Asset) %>% mutate(cumulative = cumsum(weekly.returns))
+
+# Gold Returns
+Gold3 <- Gold %>%
+  tq_transmute(select     = Price, 
+               mutate_fun = periodReturn,
+               period     = "weekly") %>% mutate(Asset = "Gold") %>% group_by(Asset) %>% mutate(cumulative = cumsum(weekly.returns))
+
+# SP500 Returns
+SP500_3 <- SP500 %>%
+  tq_transmute(select     = Price, 
+               mutate_fun = periodReturn,
+               period     = "weekly") %>% mutate(Asset = "SP500") %>% group_by(Asset)%>% mutate(cumulative = cumsum(weekly.returns))
+
+
+## 
+cor.test(BTC3$weekly.returns,Gold3$weekly.returns, use="pairwise.complete.obs")
+
+cor.test(SP500_3$weekly.returns,Gold3$weekly.returns)
+
+#rm(BTC3)
+
+  raster::cv(BTC$Price)/ 4.779818

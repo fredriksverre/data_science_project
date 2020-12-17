@@ -776,6 +776,8 @@ Despite this report being unhelpful for all the unfortunate investors that were 
 
 If we look at the correlation test between returns of S&P 500 and Gold. Then we can see the t-value is barely over 2, this supports that the zero-hypothesis can be rejected. The p-value is close to 4% so this supports that our results are not happening by chance and then also in favor of rejecting the zero-hypothesis. Lastly we need to look at the confidence intervals. We can see that the highest interval is around 24,5% and this indicates that the estimation procedure has a low probability of being correct. This means that from statistical rules we most likely couldn't use this data or trust the calculations of the static correlations.
 
+For the correlation between bitcoin and gold the numbers are even worse. The t-stat is under 2, p-value is over 5% and the confidence intervals are even lower. So this correlation can be even less trusted than the first mentioned. 
+
 
 &nbsp;
 &nbsp;
