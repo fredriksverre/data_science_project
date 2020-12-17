@@ -769,9 +769,13 @@ Our analysis illustrates bitcoins performance during the recent recession and di
 
 Despite this report being unhelpful for all the unfortunate investors that were impacted by the COVID-19 pandemic, it provides valuable insight towards future economic recessions. While proving that bitcoin did not act as a safe haven asset it showed an astounding recovery.  Further certifying Bitcoins potential as an investment.  
 
-
+**Statistical analysis:**
 
 ![Correlation test SP500 vs Gold:All years](https://lh3.googleusercontent.com/pw/ACtC-3fYdAtfN8FCsniuXg6cwrV46jbiyHbqZnNgb6S3MT8REdIpi_bLA0VRjCJhRQLZ9OLDxUpo7W8NisHy5Wud7gVBUtegfptlxCHfY-NriwWZp-AqtyEed5GPUzgbuPO5sEpRMfQPSUbsMnVfYAYRLbI=w1582-h364-no?authuser=0)
+
+
+If we look at the correlation test between returns of S&P 500 and Gold. Then we can see the t-value is barely over 2, this supports that the zero-hypothesis can be rejected. The p-value is close to 4% so this supports that our results are not happening by chance and then also in favor of rejecting the zero-hypothesis. Lastly we need to look at the confidence intervals. We can see that the highest interval is around 24,5% and this indicates that the estimation procedure has a low probability of being correct. This means that from statistical rules we most likely couldn't use this data or trust the calculations of the static correlations.
+
 
 &nbsp;
 &nbsp;
