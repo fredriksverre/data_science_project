@@ -507,6 +507,14 @@ tidyverse_rolling_corr2 %>%
 
 ```
 
+```{r message=FALSE, echo=FALSE, warning=FALSE}
+tidyverse_static_correlations2 <- na.omit(tidyverse_static_correlations2)
+
+tidyverse_static_correlations2 <- tidyverse_static_correlations2 %>% rename(Static_correlation= "SP500")
+
+knitr::kable(tidyverse_static_correlations2)
+```
+
 
 #### 2020
 When only looking at the year 2020 it shows lower coefficients of variation on all investments. This 
@@ -598,7 +606,13 @@ tidyverse_rolling_corr3 %>%
 
 ```
 
+```{r message=FALSE, echo=FALSE, warning=FALSE}
+tidyverse_static_correlations3 <- na.omit(tidyverse_static_correlations3)
 
+tidyverse_static_correlations3 <- tidyverse_static_correlations3 %>% rename(Static_correlation = "SP500")
+
+knitr::kable(tidyverse_static_correlations3)
+```
 
 Er dataen vi har brukt valid i forhold til statistiske regler? 
 
