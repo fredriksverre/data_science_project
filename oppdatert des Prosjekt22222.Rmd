@@ -748,7 +748,8 @@ Despite this report being unhelpful for all the unfortunate investors that were 
 
 
 
-![Correlation test SP500 vs Gold](correlation.png)
+![Correlation test SP500 vs Gold:All years](https://lh3.googleusercontent.com/pw/ACtC-3fYdAtfN8FCsniuXg6cwrV46jbiyHbqZnNgb6S3MT8REdIpi_bLA0VRjCJhRQLZ9OLDxUpo7W8NisHy5Wud7gVBUtegfptlxCHfY-NriwWZp-AqtyEed5GPUzgbuPO5sEpRMfQPSUbsMnVfYAYRLbI=w1582-h364-no?authuser=0)
+
 &nbsp;
 &nbsp;
 &nbsp;
