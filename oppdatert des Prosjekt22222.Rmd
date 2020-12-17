@@ -746,10 +746,11 @@ Despite this report being unhelpful for all the unfortunate investors that were 
 
 ![Correlation test SP500 vs Gold:All years](https://lh3.googleusercontent.com/pw/ACtC-3fYdAtfN8FCsniuXg6cwrV46jbiyHbqZnNgb6S3MT8REdIpi_bLA0VRjCJhRQLZ9OLDxUpo7W8NisHy5Wud7gVBUtegfptlxCHfY-NriwWZp-AqtyEed5GPUzgbuPO5sEpRMfQPSUbsMnVfYAYRLbI=w1582-h364-no?authuser=0)
 
-
-If we look at the correlation test between returns of S&P 500 and Gold. Then we can see the t-value is barely over 2, this supports that the zero-hypothesis can be rejected. The p-value is close to 4% so this supports that our results are not happening by chance and then also in favor of rejecting the zero-hypothesis. Lastly we need to look at the confidence intervals. We can see that the highest interval is around 24,5% and this indicates that the estimation procedure has a low probability of being correct. This means that from statistical rules we most likely couldn't use this data or trust the calculations of the static correlations.
+If we look at the correlation test between returns of S&P 500 and Gold. Then we can see the t-value is barely over 2, this supports that the zero-hypothesis can be rejected (in this case the zero-hyptosis would be that there is no correlation between the assets). The p-value is close to 4% so this supports that our results are not happening by chance and then also in favor of rejecting the zero-hypothesis. Lastly we need to look at the confidence intervals. We can see that the highest interval is around 24,5% and this indicates that the estimation procedure has a low probability of being correct. This means that from statistical rules we most likely couldn't use this data or trust the calculations of the static correlations.
 
 For the correlation between bitcoin and gold the numbers are even worse. The t-stat is under 2, p-value is over 5% and the confidence intervals are even lower. So this correlation can be even less trusted than the first mentioned. 
+
+So to sum up this statistical analysis, we can be pretty sure that there is correlation but there is low probability that the estimated correlation is correct.
 
 
 &nbsp;
