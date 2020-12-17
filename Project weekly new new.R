@@ -11,6 +11,7 @@ library(cranlogs)   # For inspecting package downloads over time
 library(corrr)      # Tidy correlation tables and correlation plottings
 library(cowplot) 
 library(gtrendsR) #laste inn data google
+library(shiny)
 
 ### Data
 # Getting data from API 
@@ -149,13 +150,7 @@ p<-df %>%
 p
 
 
-ui <- fluidPage(
-  titlePanel(title=h4("When did you invest?", align="center")),
-  sidebarLayout(
-    sidebarPanel( 
-      sliderInput("df", "Dates:",min = as.Date("2016-01-01","%Y-%m-%d"), max = as.Date(Sys.time(),"%Y-%m-%d"),value=c(as.Date("2016-01-01"),as.Date("2018-12-01")),timeFormat="%Y-%m-%d")),mainPanel(plotOutput("plot2"))))
-
-
+########### Shiny
 server <- function(input,output){
   
   #dat <- reactive({df[df$week %in% seq(from=min(df$week),to=max(df$week),by=1),]})
@@ -169,6 +164,13 @@ server <- function(input,output){
     req(dat())
     ggplot(data=dat()%>%group_by(Asset)%>% mutate(culinteractive=cumsum(log_returns)),aes(x=week,y=culinteractive),group=Asset)+geom_line(aes(color=Asset))},height = 350,width = 500)}
 shinyApp(ui, server)
+
+#
+ui <- fluidPage(
+  titlePanel(title=h4("When did you invest?", align="center")),
+  sidebarLayout(
+    sidebarPanel( 
+      sliderInput("df", "Dates:",min = as.Date("2016-01-01","%Y-%m-%d"), max = as.Date(Sys.time(),"%Y-%m-%d"),value=c(as.Date("2016-01-01"),as.Date("2018-12-01")),timeFormat="%Y-%m-%d")),mainPanel(plotOutput("plot2"))))
 
 ############ Making cumulative plot for 2020
 
@@ -425,7 +427,8 @@ tidyverse_rolling_corr3 %>%
   theme_tq() +
   theme(legend.position="none")
 
-################# Google search for Bitcoin
+
+################## Google search monthly data
 
 #define the keywords
 keywords=c("Bitcoin")
@@ -439,12 +442,10 @@ channel='web'
 trends = gtrends(keywords, gprop =channel,geo=country, time = time )
 #select only interest over time 
 time_trend=trends$interest_over_time
-
+#
 time_trend <- time_trend %>% select(date,hits,keyword) %>% rename(Date ="date", Price = "hits", Asset = "keyword") %>% filter(Date>= "2016-01-04")
 
-
-#####################################################################
-
+#
 BTC2<-BTC %>% mutate(Asset="Bitcoin Price")
 BTC2$week <- as.POSIXct(paste(BTC2$week, BTC2$Time), format="%Y-%m-%d")
 
@@ -484,56 +485,7 @@ vs<-test26 %>%
   ylab(expression("Bitcoin Price $")) +
   xlab("Date") +
   labs(title = "Bitcoin Price vs Searches at Google",
-       subtitle = "",
+       subtitle = "Graph:Monthly data",
        caption = "")+theme(plot.title = element_text(hjust = 0.5))
 vs<-vs+ scale_y_continuous(sec.axis = sec_axis(~./200, name = ""))
 vs
-
-
-
-############# Google search weekly data 
-
-#define the keywords
-keywords=c("Bitcoin")
-#set the geographic area: DE = Germany
-country=c('')
-#set the time window
-#time=("2015-01-01 2020-12-03")
-#time=("2015-01-01 today")
-time = ("today+5-y")
-#set channels 
-channel='web'
-
-trends = gtrends(keywords, gprop =channel,geo=country, time = time )
-#select only interst over time 
-time_trend=trends$interest_over_time
-head(time_trend)
-
-time_trend <- time_trend %>% select(date,hits,keyword) %>% rename(Date ="date", Price = "hits", Asset = "keyword") %>% filter(Date>= "2016-01-04")
-
-
-#####################################################################
-
-BTC2<-BTC %>% mutate(Asset="Bitcoin Price")
-BTC2$week <- as.POSIXct(paste(BTC2$week, BTC2$Time), format="%Y-%m-%d")
-BTC2 <-BTC2%>%select(week,Price,Asset)
-
-
-
-time_trend<-time_trend %>%mutate(Price= Price*200 )
-
-
-names(time_trend)[names(time_trend) == 'Date'] <- 'week' #Endrer navn på week data 
-
-test26<- rbind(BTC2,time_trend)
-
-vs<-test26 %>% 
-  ggplot(aes(x=week, y=Price, group=Asset)) +
-  geom_line(aes(color=Asset))+
-  ylab(expression("Bitcoin Price dollar")) +
-  xlab("Date") +
-  labs(title = "Bitcoin Price vs Searches at Google",
-       subtitle = "",
-       caption = "")+theme(plot.title = element_text(hjust = 0.5))
-vsplot<-vs+ scale_y_continuous(sec.axis = sec_axis(~./200, name = ""))
-vsplot

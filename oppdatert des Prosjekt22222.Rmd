@@ -265,113 +265,6 @@ df <- df %>% group_by(Asset)%>% mutate(cumulative = cumsum(log_returns))
 
 ```
 
-### Data
-Source, scraping method, cleanup, etc.
-
-Finding data on this topic initially seemed like a manageable task. Cryptocurrency and other financial markets rely on constant flow of publicly accessible data to function properly. 
-Using APIs was the preferred method but found several obstacles which complicated the process. Some APIs costs money and others proved difficult to operate. 
-
-Yahoo finance is a financial platform that provide reliable reports and a global following. Yahoo finance gave access to CSV-files on the S&P 500, Bitcoin, Ethereum and VIX-index.
-By use of the correct R-code opened up the possibility to import these files directly into R-studio. This makes the report more user-orientated and also creates a dynamic code.  
-The data set received from Yahoo on gold prices revealed several gaps. Involving missing dates and values. We deemed it unusable and had to revisit the application of APIs. 
-Through Quandl it was manageable to make use of an API and retrieve data on gold from the London Bullion Market. 
-
-The data acquired from Yahoo finance came in a xts-format. Which made the date variable appear in a POXEIT-format. This format was somewhat new to us, but by use of the Zoo package we managed to transform it into a format more suited for our abilities. 
-
-After the data was in the correct formats, we used the dplyr package to manipulate and create pipeline for the data. The data frames contained variables irrelevant to the analysis. These variables were removed by choosing columns with the select function. Then adding new variables to specify each asset. This makes it more convenient to plot the data frame later. 
-
-An obstacle when comparing cryptocurrency markets to other financial markets is that normal markets have limited trading hours and closed during the weekend. The cryptocurrency market is unlimited and open all year. Observations for Bitcoin and Ethereum exceeded the observations for gold and the S&P 500 and VIX-indexes. This obstacle was solved manipulation the data into weekly observations. By creating a mean of all the daily data with the summarize function within a week to generate a weekly price. The floor_date function made this possible, which makes all values within a week set to the same date assigned to a week variable. Then applying the group_by function arrange the data. 
-
-The data frame from the London Bullion Market contained several N/A values. Removing these was done with the omit function. 
-
-To visualise the rate of returns cumulatively it was necessary to calculate the logarithmic returns each week. By dividing the log of the first observation by the log of the following observation. (Log observation 1/ log observation 2). Then recreating the data frame using cbind. To do this it was necessary to use rbind function to enter an observation zero, to be able to connect the original data frame with the logarithmic returns. 
-Eventually using the cumsum function to summarise all grouped assets up against the logarithmic returns. Now all the data is cumulative, and it is possible to compare the returns of each asset.
-
-
-```{r message=FALSE, echo=FALSE}
-# Plotting
-p<-df %>% 
-  ggplot(aes(x=week, y=cumulative, group=Asset)) +
-  geom_line(aes(color=Asset))+
-  ylab(expression("Change on cumulative form")) +
-  xlab("Date") +
-  labs(title = "Logaritmic return on cumulativ form from 2016-2020",
-       subtitle = "",
-       caption = "")+theme(plot.title = element_text(hjust = 0.5))
-
-p
-```
-
-```{r message=FALSE, echo=FALSE,warning=FALSE}
-ui <- fluidPage(
-  titlePanel(title=h4("When did you invest?", align="center")),
-  sidebarLayout(
-    sidebarPanel( 
-      sliderInput("df", "Dates:",min = as.Date("2016-01-01","%Y-%m-%d"), max = as.Date(Sys.time(),"%Y-%m-%d"),value=c(as.Date("2016-01-01"),as.Date("2018-12-01")),timeFormat="%Y-%m-%d")),mainPanel(plotOutput("plot2"))))
-
-
-server <- function(input,output){
-  
-  #dat <- reactive({df[df$week %in% seq(from=min(df$week),to=max(df$week),by=1),]})
-  dat <- reactive({
-    test <- df[df$week %in% seq(from=min(input$df),to=max(input$df),by=1),]
-    print(test)
-    test
-  })
-  
-  output$plot2<-renderPlot({
-    req(dat())
-    ggplot(data=dat()%>%group_by(Asset)%>% mutate(culinteractive=cumsum(log_returns)),aes(x=week,y=culinteractive),group=Asset)+geom_line(aes(color=Asset))},height = 350,width = 500)}
-shinyApp(ui, server)
-```
-
-### Exploratory Analysis
-
-Beginning with an examination of the cumulative growth in the chosen markets. Starting in 2016 the illustration shows the cumulative returns of Bitcoin, Ethereum, Gold, S&P 500 and the VIX-index. These assets were chosen for several comparative reasons. Ethereum which is a rivaling cryptocurrency have been included as an alternative investment in the cryptocurrency market. Gold as an asset is a well-established safe haven and has maintained its value over a long term. The S&P 500 is a stock index measuring the performance of the 500 largest companies listed on the American stock exchanges. It includes companies like Apple, Amazon, JP Morgan Chase etc. Representing a broad selection of American industries and works as an indicator for the overall economy. Lastly, the Cboe Volatility Index is included in the analysis. Abbreviated to VIX, it represents market expectations for volatility and is an indicator for market risk. 
-
-Looking at the entire four-year period it displays the two cryptocurrencies as the investments with highest returns. Ethereum leading the race by a margin nearly double bitcoins performance.  The rate of returns in S&P 500 and gold is shown to been minor in comparison. Nevertheless, has a greater degree of stability in its performance. The most notable growth in VIX is at the entry of 2020. Naturally the covid-19 pandemic created financial turbulence on a global scale and would be the explanation for the rapid growth in market volatility. 
-
-The illustration shows that both Bitcoin and Ethereum are corelated with market trends. As the VIX has increased growth traditional financial assets should experience reduced growth. The only asset not showing this inverse correlation is gold. 
-
-#### When did you invest?
-
-The rate of returns received in these assets vary considerably on when the investment occurred. If the investment took place at the start of the period, the returns would be identical to the original illustration. But if the investment was placed on different dates within this period the performance fluctuates significantly. Ethereum which yields the highest returns in the overall period, is shown to be the weakest performer when isolating the period from 2018-2020. 
-
-
-### Risk Assessment 
-
-A part of the overall evaluation in the particular investments and one of our initial questions involve an assessment of risk. What is the undertaken risk when investing in these assets?
-To measure the risk of an investment there are several statistical and financial methods available. The methodology chosen for risk assessment of the above-mentioned assets in this report have been through coefficient of variation. This measures the dispersion of the data from its mean.  The coefficient of variation is helpful to determine the amount of risk and volatility in comparison to its rate of return
-
-When measuring the coefficient of variation, it shows the tradeoff between risk and return. A high coefficient of variation indicates an asset that has higher degree of volatility but simultaneously produces a higher return. Such an investment would be suitable for a risk-taking investor. On the contrary a low coefficient of variation point to an asset with historically a low degree of risk relative to return. Suitable for a risk adverse investor. 
-In the analysis the coefficient of variation are relative measurements. This places the values on a range from 0-100.    
-
-#### 2016-2020
-
-
-
-Coefficients of variation (relative variance):
-
-**Relativ varians for Bitcoin:** `r raster::cv(BTC$Price) ` 
-
-**Relativ varians for Ethereum:** `r raster::cv(ETH$Price) ` 
-
-**Relativ varians for Gold:** `r raster::cv(Gold$Price) ` 
-
-**Relativ varians for S&P500:** `r raster::cv(SP500$Price) ` 
-
-
-When calculating the coefficients of variation of the assets in the entire period it becomes evident that both Bitcoin and Ethereum have a high degree of volatility. The initially lucrative rates of return come with associated risks. Gold and the S&P 500 have substantially lower coefficient of variation, indicating a greater degree of stability.. It is worth noting that coefficient of variation of gold and the S&P 500 are nearly equivalent. Thus being similiar in the risk return tradeoff.   
-
-#### 2020
-When only looking at the year 2020 it shows lower coefficients of variation on all investments. This 
-
-Her har vi kjørt korrelsasjon mellom Bitcoin og den nevnte Asset klassen nedenfor:
-
-
-
-
-Korrelsasjonen vi har gjørt mellom Bitcoin og S&P500 indexen i tidsrommet 2016 til dagens dato har vi funnet at de korrelerer veldig høyt. Gull og S&P500 korrelerer også høyt men lavere enn Bitcoin/S&P500. Slik at ut i fra disse tallene ser det ikke ut som at Bitcoin kan være en bedre hedge/diversifisering en gold kun med tanke på risiko. Dette resultat kan være anerledes om vi ser på andre år eksplisit.
 
 ```{r message=FALSE, echo=FALSE}
 # Filter for year 2020
@@ -409,36 +302,106 @@ SP500_2020 <- cbind(SP500_2020, log_returns2)
 df2<-bind_rows(BTC2020,Gold2020,SP500_2020)
 # Making cumulative count
 df2 <- df2 %>% select(week,Price,Asset,log_returns2) %>% group_by(Asset)%>% mutate(cumulative = cumsum(log_returns2))
-# Plotting. 
-df2 %>% 
+```
+
+### Data
+Source, scraping method, cleanup, etc.
+
+Finding data on this topic initially seemed like a manageable task. Cryptocurrency and other financial markets rely on constant flow of publicly accessible data to function properly. 
+Using APIs was the preferred method but found several obstacles which complicated the process. Some APIs costs money and others proved difficult to operate. 
+
+Yahoo finance is a financial platform that provide reliable reports and a global following. Yahoo finance gave access to CSV-files on the S&P 500, Bitcoin, Ethereum and VIX-index.
+By use of the correct R-code opened up the possibility to import these files directly into R-studio. This makes the report more user-orientated and also creates a dynamic code.  
+The data set received from Yahoo on gold prices revealed several gaps. Involving missing dates and values. We deemed it unusable and had to revisit the application of APIs. 
+Through Quandl it was manageable to make use of an API and retrieve data on gold from the London Bullion Market. 
+
+The data acquired from Yahoo finance came in a xts-format. Which made the date variable appear in a POXEIT-format. This format was somewhat new to us, but by use of the Zoo package we managed to transform it into a format more suited for our abilities. 
+
+After the data was in the correct formats, we used the dplyr package to manipulate and create pipeline for the data. The data frames contained variables irrelevant to the analysis. These variables were removed by choosing columns with the select function. Then adding new variables to specify each asset. This makes it more convenient to plot the data frame later. 
+
+An obstacle when comparing cryptocurrency markets to other financial markets is that normal markets have limited trading hours and closed during the weekend. The cryptocurrency market is unlimited and open all year. Observations for Bitcoin and Ethereum exceeded the observations for gold and the S&P 500 and VIX-indexes. This obstacle was solved manipulation the data into weekly observations. By creating a mean of all the daily data with the summarize function within a week to generate a weekly price. The floor_date function made this possible, which makes all values within a week set to the same date assigned to a week variable. Then applying the group_by function arrange the data. 
+
+The data frame from the London Bullion Market contained several N/A values. Removing these was done with the omit function. 
+
+To visualise the rate of returns cumulatively it was necessary to calculate the logarithmic returns each week. By dividing the log of the first observation by the log of the following observation. (Log observation 1/ log observation 2). Then recreating the data frame using cbind. To do this it was necessary to use rbind function to enter an observation zero, to be able to connect the original data frame with the logarithmic returns. 
+Eventually using the cumsum function to summarise all grouped assets up against the logarithmic returns. Now all the data is cumulative, and it is possible to compare the returns of each asset.
+
+
+### Exploratory Analysis
+
+Beginning with an examination of the cumulative growth in the chosen markets. Starting in 2016 the illustration shows the cumulative returns of Bitcoin, Ethereum, Gold, S&P 500 and the VIX-index. These assets were chosen for several comparative reasons. Ethereum which is a rivaling cryptocurrency have been included as an alternative investment in the cryptocurrency market. Gold as an asset is a well-established safe haven and has maintained its value over a long term. The S&P 500 is a stock index measuring the performance of the 500 largest companies listed on the American stock exchanges. It includes companies like Apple, Amazon, JP Morgan Chase etc. Representing a broad selection of American industries and works as an indicator for the overall economy. Lastly, the Cboe Volatility Index is included in the analysis. Abbreviated to VIX, it represents market expectations for volatility and is an indicator for market risk. 
+
+Looking at the entire four-year period it displays the two cryptocurrencies as the investments with highest returns. Ethereum leading the race by a margin nearly double bitcoins performance.  The rate of returns in S&P 500 and gold is shown to been minor in comparison. Nevertheless, has a greater degree of stability in its performance. The most notable growth in VIX is at the entry of 2020. Naturally the covid-19 pandemic created financial turbulence on a global scale and would be the explanation for the rapid growth in market volatility. 
+
+The illustration shows that both Bitcoin and Ethereum are corelated with market trends. As the VIX has increased growth traditional financial assets should experience reduced growth. The only asset not showing this inverse correlation is gold. 
+
+```{r message=FALSE, echo=FALSE}
+# Plotting
+p<-df %>% 
   ggplot(aes(x=week, y=cumulative, group=Asset)) +
   geom_line(aes(color=Asset))+
-  ylab(expression("Return on cumulativ form")) +
+  ylab(expression("Change on cumulative form")) +
   xlab("Date") +
-  labs(title = "Logaritmic return on cumulative form 2020",
+  labs(title = "Logaritmic return on cumulativ form from 2016-2020",
        subtitle = "",
        caption = "")+theme(plot.title = element_text(hjust = 0.5))
 
+p
 ```
 
-### Risk measurment 2020
+#### When did you invest?
+
+The rate of returns received in these assets vary considerably on when the investment occurred. If the investment took place at the start of the period, the returns would be identical to the original illustration. But if the investment was placed on different dates within this period the performance fluctuates significantly. Ethereum which yields the highest returns in the overall period, is shown to be the weakest performer when isolating the period from 2018-2020. 
 
 
-Coefficients of variations for the year 2020 (relative variance):
+```{r message=FALSE, echo=FALSE,warning=FALSE}
+ui <- fluidPage(
+  titlePanel(title=h4("When did you invest?", align="center")),
+  sidebarLayout(
+    sidebarPanel( 
+      sliderInput("df", "Dates:",min = as.Date("2016-01-01","%Y-%m-%d"), max = as.Date(Sys.time(),"%Y-%m-%d"),value=c(as.Date("2016-01-01"),as.Date("2018-12-01")),timeFormat="%Y-%m-%d")),mainPanel(plotOutput("plot2"))))
 
-**Relative variance for Bitcoin:** `r raster::cv(BTC2020$Price) ` 
 
-**Relative variance for Ethereum:** `r raster::cv(ETH2020$Price) ` 
+server <- function(input,output){
+  
+  #dat <- reactive({df[df$week %in% seq(from=min(df$week),to=max(df$week),by=1),]})
+  dat <- reactive({
+    test <- df[df$week %in% seq(from=min(input$df),to=max(input$df),by=1),]
+    print(test)
+    test
+  })
+  
+  output$plot2<-renderPlot({
+    req(dat())
+    ggplot(data=dat()%>%group_by(Asset)%>% mutate(culinteractive=cumsum(log_returns)),aes(x=week,y=culinteractive),group=Asset)+geom_line(aes(color=Asset))},height = 350,width = 500)}
+shinyApp(ui, server)
+```
 
-**Relative variance for Gold:** `r raster::cv(Gold2020$Price) ` 
 
-**Relative variance for S&P500:** `r raster::cv(SP500_2020$Price) ` 
+### Risk Assessment 
 
- 
-### Correlation
+A part of the overall evaluation in the particular investments and one of our initial questions involve an assessment of risk. What is the undertaken risk when investing in these assets?
+To measure the risk of an investment there are several statistical and financial methods available. The methodology chosen for risk assessment of the above-mentioned assets in this report have been through coefficient of variation. This measures the dispersion of the data from its mean.  The coefficient of variation is helpful to determine the amount of risk and volatility in comparison to its rate of return
 
-These graphs are showing correlation between weekly-return.
+When measuring the coefficient of variation, it shows the tradeoff between risk and return. A high coefficient of variation indicates an asset that has higher degree of volatility but simultaneously produces a higher return. Such an investment would be suitable for a risk-taking investor. On the contrary a low coefficient of variation point to an asset with historically a low degree of risk relative to return. Suitable for a risk adverse investor. 
+In the analysis the coefficient of variation are relative measurements. This places the values on a range from 0-100.    
 
+#### 2016-2020
+
+
+
+Coefficients of variation (relative variance):
+
+**Relativ varians for Bitcoin:** `r raster::cv(BTC$Price) ` 
+
+**Relativ varians for Ethereum:** `r raster::cv(ETH$Price) ` 
+
+**Relativ varians for Gold:** `r raster::cv(Gold$Price) ` 
+
+**Relativ varians for S&P500:** `r raster::cv(SP500$Price) ` 
+
+
+When calculating the coefficients of variation of the assets in the entire period it becomes evident that both Bitcoin and Ethereum have a high degree of volatility. The initially lucrative rates of return come with associated risks. Gold and the S&P 500 have substantially lower coefficient of variation, indicating a greater degree of stability.. It is worth noting that coefficient of variation of gold and the S&P 500 are nearly equivalent. Thus being similiar in the risk return tradeoff.   
 
 ```{r message=FALSE, echo=FALSE, warning=FALSE}
 
@@ -518,6 +481,37 @@ tidyverse_rolling_corr2 %>%
 ```
 
 
+#### 2020
+When only looking at the year 2020 it shows lower coefficients of variation on all investments. This 
+
+Her har vi kjørt korrelsasjon mellom Bitcoin og den nevnte Asset klassen nedenfor:
+
+
+
+
+Korrelsasjonen vi har gjørt mellom Bitcoin og S&P500 indexen i tidsrommet 2016 til dagens dato har vi funnet at de korrelerer veldig høyt. Gull og S&P500 korrelerer også høyt men lavere enn Bitcoin/S&P500. Slik at ut i fra disse tallene ser det ikke ut som at Bitcoin kan være en bedre hedge/diversifisering en gold kun med tanke på risiko. Dette resultat kan være anerledes om vi ser på andre år eksplisit.
+
+
+
+### Risk measurment 2020
+
+
+Coefficients of variations for the year 2020 (relative variance):
+
+**Relative variance for Bitcoin:** `r raster::cv(BTC2020$Price) ` 
+
+**Relative variance for Ethereum:** `r raster::cv(ETH2020$Price) ` 
+
+**Relative variance for Gold:** `r raster::cv(Gold2020$Price) ` 
+
+**Relative variance for S&P500:** `r raster::cv(SP500_2020$Price) ` 
+
+ 
+### Correlation
+
+These graphs are showing Correlation between weekly-return.
+
+
 ```{r message=FALSE, echo=FALSE, warning=FALSE}
 # Correlation table
 tidyverse_static_correlations3 <- df3 %>% filter(week>= "2020-01-01") %>%
@@ -590,8 +584,19 @@ Andre ting?
 &nbsp;
 &nbsp;
 
-### Final Analysis
-What did you learn about the data? How did you answer the questions? How can you justify your answers?
+```{r message=FALSE, echo=FALSE}
+
+# Plotting. 
+df2 %>% 
+  ggplot(aes(x=week, y=cumulative, group=Asset)) +
+  geom_line(aes(color=Asset))+
+  ylab(expression("Return on cumulativ form")) +
+  xlab("Date") +
+  labs(title = "Logaritmic return on cumulative form 2020",
+       subtitle = "",
+       caption = "")+theme(plot.title = element_text(hjust = 0.5))
+
+```
 
 &nbsp;
 &nbsp;
@@ -599,30 +604,6 @@ What did you learn about the data? How did you answer the questions? How can you
 &nbsp;
 &nbsp;
 
-
-We where not able to run this Rmarkdown in the online edition for some unknown reason.
-
-It can be a problem kniting this Rmarkdown on the weekendays and until the stock market closes on Monday, since there will be added new data during the weekend for Bitcoin and Ethereum and not for the traditional markets since those are closed. That means that it will be added one more observation for the crypto assets and can cause errors kniting. 
-
-### Kilder 
-
-###### Quandl API - gull priser
-https://www.quandl.com/data/LBMA/GOLD-Gold-Price-London-Fixing
-
-###### Bitcoin
-https://finance.yahoo.com/quote/BTC-USD/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
-
-###### Ethereum
-https://finance.yahoo.com/quote/ETH-USD/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
-
-###### Gull
-https://finance.yahoo.com/quote/GC%3DF/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
-
-###### Vix
-https://finance.yahoo.com/quote/%5EVIX/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
-
-###### S&P500
-https://finance.yahoo.com/quote/%5EGSPC/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
 
 ```{r message=FALSE, echo=FALSE}
 #define the keywords
@@ -689,5 +670,40 @@ vs
 
 ```
 
+
+
+### Final Analysis
+What did you learn about the data? How did you answer the questions? How can you justify your answers?
+
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+
+
+We where not able to run this Rmarkdown in the online edition for some unknown reason.
+
+It can be a problem kniting this Rmarkdown on the weekendays and until the stock market closes on Monday, since there will be added new data during the weekend for Bitcoin and Ethereum and not for the traditional markets since those are closed. That means that it will be added one more observation for the crypto assets and can cause errors kniting. 
+
+### Kilder 
+
+###### Quandl API - gull priser
+https://www.quandl.com/data/LBMA/GOLD-Gold-Price-London-Fixing
+
+###### Bitcoin
+https://finance.yahoo.com/quote/BTC-USD/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
+
+###### Ethereum
+https://finance.yahoo.com/quote/ETH-USD/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
+
+###### Gull
+https://finance.yahoo.com/quote/GC%3DF/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
+
+###### Vix
+https://finance.yahoo.com/quote/%5EVIX/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
+
+###### S&P500
+https://finance.yahoo.com/quote/%5EGSPC/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
 
 
