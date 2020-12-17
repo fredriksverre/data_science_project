@@ -546,7 +546,9 @@ knitr::kable(tidyverse_static_correlations2)
 
 When only looking at the year 2020 it shows lower coefficients of variation on all investments, it shows that every value has been lowered compared to the 2016-2020 period. 2020 has been a year of greater stability for cryptocurrencies despite being impacted by the pandemic. This might be the result of the fact that cryptocurrencies is a fairly new asset that only has been around for approximately ten years and is still maturing, and probably not the pandemic making it increasingly stable. As for the S&P 500 measuring lower risk might be surprising. Also visible from the “2020 cumulative graph” markets may have not been as volatile as initially thought during the pandemic.
  
-
+&nbsp;
+&nbsp;
+&nbsp;
 
 These graphs are showing Correlation between weekly-return.
 
@@ -630,8 +632,10 @@ It is challenging to give a clear answer to the best asset for diversification w
 &nbsp;
 
 ### Is bitcoin a safe haven asset?
+
 &nbsp;
 &nbsp
+
 The safe haven properties of bitcoin have already been established. Bitcoin fulfils the characteristics of a safe haven asset. Yet the question whether bitcoin acted as a safe haven during the covid-19 recession remains unanswered. A safe haven asset should act oppositely of other financial assets in turbulent times and have an inverse correlation.
 Did Bitcoin act in such a way in 2020?
 
