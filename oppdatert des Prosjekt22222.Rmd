@@ -9,8 +9,29 @@ output:
     smooth_scroll: false
     toc_depth: 3
 runtime: shiny
-date: "`r format(Sys.time(), '%d %B %Y')`"
+date: "last updated `r format(Sys.time(), '%d %B %Y')`"
 ---
+<!---
+DATA:
+###### Quandl API - gull priser
+https://www.quandl.com/data/LBMA/GOLD-Gold-Price-London-Fixing
+
+###### Bitcoin
+https://finance.yahoo.com/quote/BTC-USD/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
+
+###### Ethereum
+https://finance.yahoo.com/quote/ETH-USD/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
+
+###### Gull
+https://finance.yahoo.com/quote/GC%3DF/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
+
+###### Vix
+https://finance.yahoo.com/quote/%5EVIX/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
+
+###### S&P500
+https://finance.yahoo.com/quote/%5EGSPC/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
+
+-->
 
 
 ```{r setup, include=FALSE}
@@ -574,7 +595,6 @@ tidyverse_rolling_corr3 %>%
   ) +
   theme_tq() +
   theme(legend.position="none")
-
 
 ```
 
