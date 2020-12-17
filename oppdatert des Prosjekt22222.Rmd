@@ -403,30 +403,40 @@ shinyApp(ui, server) #making it rain
 ```
 
 
-### Risk Assessment 
+### Risk Assessment and Correlation
 
 A part of the overall evaluation in the particular investments and one of our initial questions involve an assessment of risk. What is the undertaken risk when investing in these assets?
-To measure the risk of an investment there are several statistical and financial methods available. The methodology chosen for risk assessment of the above-mentioned assets in this report have been through coefficient of variation. This measures the dispersion of the data from its mean.  The coefficient of variation is helpful to determine the amount of risk and volatility in comparison to its rate of return.
+To measure the risk of an investment there are several statistical and financial methods available. The methodology chosen for risk assessment of the above-mentioned assets in this report have been through coefficient of variation. This measures the dispersion of the data from its mean.  The coefficient of variation is helpful to determine the amount of risk and volatility in comparison to its rate of return. 
 
 When measuring the coefficient of variation, it shows the tradeoff between risk and return. A high coefficient of variation indicates an asset that has higher degree of volatility but simultaneously produces a higher return. Such an investment would be suitable for a risk-taking investor. On the contrary a low coefficient of variation point to an asset with historically a low degree of risk relative to return. Suitable for a risk adverse investor. 
-In the analysis the coefficient of variation are relative measurements. This places the values on a range from 0-100.    
+In the analysis the coefficient of variation are relative measurements. This places the values on a range from 0-100.  
+
+&nbsp;
+&nbsp;
+&nbsp;
 
 #### 2016-2020
+&nbsp;
+&nbsp;
+&nbsp;
 
+**Coefficient of variation Bitcoin:** `r raster::cv(BTC$Price) ` 
 
+**Coefficient of variation Ethereum:** `r raster::cv(ETH$Price) ` 
 
-Coefficients of variation (relative variance):
+**Coefficient of variation Gold:** `r raster::cv(Gold$Price) ` 
 
-**Relativ varians for Bitcoin:** `r raster::cv(BTC$Price) ` 
+**Coefficient of variation  S&P500:** `r raster::cv(SP500$Price) ` 
 
-**Relativ varians for Ethereum:** `r raster::cv(ETH$Price) ` 
+&nbsp;
+&nbsp;
 
-**Relativ varians for Gold:** `r raster::cv(Gold$Price) ` 
+When calculating the coefficients of variation of the assets in the entire period it becomes evident that both Bitcoin and Ethereum have a high degree of volatility. The initially lucrative rates of return come with associated risks. Gold and the S&P 500 have substantially lower coefficient of variation, indicating a greater degree of stability.. It is worth noting that coefficient of variation of gold and the S&P 500 are nearly equivalent. Thus being similar in the risk return tradeoff. 
 
-**Relativ varians for S&P500:** `r raster::cv(SP500$Price) ` 
-
-
-When calculating the coefficients of variation of the assets in the entire period it becomes evident that both Bitcoin and Ethereum have a high degree of volatility. The initially lucrative rates of return come with associated risks. Gold and the S&P 500 have substantially lower coefficient of variation, indicating a greater degree of stability.. It is worth noting that coefficient of variation of gold and the S&P 500 are nearly equivalent. Thus being similar in the risk return tradeoff.   
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
 
 ```{r message=FALSE, echo=FALSE, warning=FALSE}
 
@@ -514,21 +524,25 @@ tidyverse_static_correlations2 <- tidyverse_static_correlations2 %>% rename(Stat
 knitr::kable(tidyverse_static_correlations2)
 ```
 
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
 
+#### 2020
+&nbsp;
+&nbsp;
 
+**Coefficient of variation Bitcoin:** `r raster::cv(BTC2020$Price) ` 
 
-### Risk Assessment and Correlation 2020
+**Coefficient of variation Ethereum:** `r raster::cv(ETH2020$Price) ` 
 
+**Coefficient of variation Gold:** `r raster::cv(Gold2020$Price) ` 
 
-Coefficients of variations for the year 2020 (relative variance):
+**Coefficient of variation S&P500:** `r raster::cv(SP500_2020$Price) ` 
 
-**Relative variance for Bitcoin:** `r raster::cv(BTC2020$Price) ` 
-
-**Relative variance for Ethereum:** `r raster::cv(ETH2020$Price) ` 
-
-**Relative variance for Gold:** `r raster::cv(Gold2020$Price) ` 
-
-**Relative variance for S&P500:** `r raster::cv(SP500_2020$Price) ` 
+&nbsp;
+&nbsp;
 
 When only looking at the year 2020 it shows lower coefficients of variation on all investments, it shows that every value has been lowered compared to the 2016-2020 period. 2020 has been a year of greater stability for cryptocurrencies despite being impacted by the pandemic. This might be the result of the fact that cryptocurrencies is a fairly new asset that only has been around for approximately ten years and is still maturing, and probably not the pandemic making it increasingly stable. As for the S&P 500 measuring lower risk might be surprising. Also visible from the “2020 cumulative graph” markets may have not been as volatile as initially thought during the pandemic.
  
@@ -616,7 +630,8 @@ It is challenging to give a clear answer to the best asset for diversification w
 &nbsp;
 
 ### Is bitcoin a safe haven asset?
- 
+&nbsp;
+&nbsp
 The safe haven properties of bitcoin have already been established. Bitcoin fulfils the characteristics of a safe haven asset. Yet the question whether bitcoin acted as a safe haven during the covid-19 recession remains unanswered. A safe haven asset should act oppositely of other financial assets in turbulent times and have an inverse correlation.
 Did Bitcoin act in such a way in 2020?
 
@@ -658,7 +673,8 @@ A question that was set to be answered as a part of the overall evaluation of bi
 Amateur investors who have little understanding of the utilization of bitcoin other than it potentially being a profitable investment. They have a fear of missing out and are jumping the bandwagon.In the other category are professional investors. These particular investors have done a proper evaluation of Bitcoin as an asset, understanding its utilization and overall value.  
 
 With the assumption that the amount of google searches on the word bitcoin correlates to which of two categories the majority of bitcoin investors fall into, it is possible to determine who the investors are.
-
+&nbsp;
+&nbsp
 ```{r message=FALSE, echo=FALSE}
 #define the keywords
 keywords=c("Bitcoin")
@@ -728,7 +744,10 @@ By producing a plot over the period and placing the amount of google searches an
 During the first two year of the period the bitcoin price has an exponential increase. The google searches in the same period are strongly aligned with the price and follow the same trajectory. Under the assumptions made the majority of investors in this period falls into the category of amateur investors. After the initial hype over the course of 2017 the number of searches fell along with the price. The amateur investors were leaving the market.
 From 2019 and forwards the price started to increase again, this time the price increase was not correlated with google searches to the same degree indicating that the majority of the investors were professional.
 
-
+&nbsp;
+&nbsp
+&nbsp;
+&nbsp
 
 ### Final Analysis
 What did you learn about the data? How did you answer the questions? How can you justify your answers?
