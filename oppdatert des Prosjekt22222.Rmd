@@ -374,32 +374,31 @@ The rate of returns received in these assets vary considerably on when the inves
 
 
 ```{r message=FALSE, echo=FALSE,warning=FALSE}
-ui <- fluidPage(
+ui <- fluidPage( # Making user interface
   titlePanel(title=h4("Logarithmic return on cumulativ form", align="center")),
   sidebarLayout( 
     sidebarPanel( 
-      sliderInput("df", "Dates:",min = as.Date("2016-01-01","%Y-%m-%d"), max = as.Date(Sys.time(),"%Y-%m-%d"),value=c(as.Date("2018-01-01"),as.Date("2020-01-01")),timeFormat="%Y-%m-%d")),mainPanel(plotOutput("plot2")))) 
+      sliderInput("df", "Dates:",min = as.Date("2016-01-01","%Y-%m-%d"), max =  as.Date(Sys.time(),"%Y-%m-%d"),value=c(as.Date("2018-01-01"),as.Date("2020-01-01")),timeFormat="%Y-%m-%d")),mainPanel(plotOutput("plot2")))) #Setting slidebar to read dates
 
 
 server <- function(input,output){
   
   #dat <- reactive({df[df$week %in% seq(from=min(df$week),to=max(df$week),by=1),]})
   dat <- reactive({
-    test <- df[df$week %in% seq(from=min(input$df),to=max(input$df),by=1),]
+    test <- df[df$week %in% seq(from=min(input$df),to=max(input$df),by=1),] #making the data from df reactive(week), make it coloborate with slidebar
     print(test)
     test
   })
-  
+  #calculate the output plot
   output$plot2<-renderPlot({
-    req(dat())
+    req(dat())# require interactive weekly data
     ggplot(data=dat()%>%
              group_by(Asset)%>% 
-             mutate(culinteractive=cumsum(log_returns)- lag(1, default = first(log_returns))),
+             mutate(culinteractive=cumsum(log_returns)- lag(1, default = first(log_returns))),# delete first row of log-returnes when reactive, not first row because it is no lag there. 
            aes(x=week,y=culinteractive),group=Asset)+geom_line(aes(color=Asset))+
       ylab(expression("Change on cumulative form"))+
-      xlab("Date")},height = 300,width = 500)}
-shinyApp(ui, server)
-
+      xlab("Date")},height = 300,width = 500)} # making it fit the output
+shinyApp(ui, server) #making it rain
 
 ```
 
@@ -751,7 +750,7 @@ https://finance.yahoo.com/quote/%5EVIX/history?period1=1446768000&period2=160462
 ###### S&P500
 https://finance.yahoo.com/quote/%5EGSPC/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
 
-######Picture source
+###### Picture source
 https://www.forbes.com/sites/forbesfinancecouncil/2018/12/05/the-top-10-risks-of-bitcoin-investing-and-how-to-avoid-them/?sh=55fff8a52407
 
 
