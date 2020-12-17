@@ -356,16 +356,16 @@ The illustration shows that both Bitcoin and Ethereum are corelated with market 
 
 ```{r message=FALSE, echo=FALSE}
 # Plotting
-p<-df %>% 
+df %>% 
   ggplot(aes(x=week, y=cumulative, group=Asset)) +
   geom_line(aes(color=Asset))+
   ylab(expression("Change on cumulative form")) +
   xlab("Date") +
   labs(title = "Logarithmic return on cumulativ form from 2016-Today",
-       subtitle = "",
+       subtitle = "Graph: Weekly data",
        caption = "")+theme(plot.title = element_text(hjust = 0.5))
 
-p
+
 ```
 
 #### When did you invest?
@@ -622,7 +622,7 @@ df2 %>%
   ylab(expression("Return on cumulativ form")) +
   xlab("Date") +
   labs(title = "Logarithmic return on cumulative form 2020",
-       subtitle = "",
+       subtitle = "Graph: Weekly data",
        caption = "")+theme(plot.title = element_text(hjust = 0.5))
 
 ```
