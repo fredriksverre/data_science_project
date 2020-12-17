@@ -340,7 +340,7 @@ p<-df %>%
   geom_line(aes(color=Asset))+
   ylab(expression("Change on cumulative form")) +
   xlab("Date") +
-  labs(title = "Logarithmic return on cumulativ form from 2016-2020",
+  labs(title = "Logarithmic return on cumulativ form from 2016-Today",
        subtitle = "",
        caption = "")+theme(plot.title = element_text(hjust = 0.5))
 
@@ -354,10 +354,10 @@ The rate of returns received in these assets vary considerably on when the inves
 
 ```{r message=FALSE, echo=FALSE,warning=FALSE}
 ui <- fluidPage(
-  titlePanel(title=h4("ASSET", align="center")),
-  sidebarLayout(
+  titlePanel(title=h4("Logarithmic return on cumulativ form", align="center")),
+  sidebarLayout( 
     sidebarPanel( 
-      sliderInput("df", "Dates:",min = as.Date("2016-01-01","%Y-%m-%d"), max = as.Date(Sys.time(),"%Y-%m-%d"),value=c(as.Date("2016-01-01"),as.Date("2018-12-01")),timeFormat="%Y-%m-%d")),mainPanel(plotOutput("plot2"))))
+      sliderInput("df", "Dates:",min = as.Date("2016-01-01","%Y-%m-%d"), max = as.Date(Sys.time(),"%Y-%m-%d"),value=c(as.Date("2018-01-01"),as.Date("2020-01-01")),timeFormat="%Y-%m-%d")),mainPanel(plotOutput("plot2")))) 
 
 
 server <- function(input,output){
@@ -374,7 +374,9 @@ server <- function(input,output){
     ggplot(data=dat()%>%
              group_by(Asset)%>% 
              mutate(culinteractive=cumsum(log_returns)- lag(1, default = first(log_returns))),
-           aes(x=week,y=culinteractive),group=Asset)+geom_line(aes(color=Asset))},height = 300,width = 500)}
+           aes(x=week,y=culinteractive),group=Asset)+geom_line(aes(color=Asset))+
+      ylab(expression("Change on cumulative form"))+
+      xlab("Date")},height = 300,width = 500)}
 shinyApp(ui, server)
 
 
@@ -404,7 +406,7 @@ Coefficients of variation (relative variance):
 **Relativ varians for S&P500:** `r raster::cv(SP500$Price) ` 
 
 
-When calculating the coefficients of variation of the assets in the entire period it becomes evident that both Bitcoin and Ethereum have a high degree of volatility. The initially lucrative rates of return come with associated risks. Gold and the S&P 500 have substantially lower coefficient of variation, indicating a greater degree of stability.. It is worth noting that coefficient of variation of gold and the S&P 500 are nearly equivalent. Thus being similiar in the risk return tradeoff.   
+When calculating the coefficients of variation of the assets in the entire period it becomes evident that both Bitcoin and Ethereum have a high degree of volatility. The initially lucrative rates of return come with associated risks. Gold and the S&P 500 have substantially lower coefficient of variation, indicating a greater degree of stability.. It is worth noting that coefficient of variation of gold and the S&P 500 are nearly equivalent. Thus being similar in the risk return tradeoff.   
 
 ```{r message=FALSE, echo=FALSE, warning=FALSE}
 
@@ -670,9 +672,9 @@ vs<-test26 %>%
   ylab(expression("Bitcoin Price $")) +
   xlab("Date") +
   labs(title = "Bitcoin Price vs Searches at Google",
-       subtitle = "Graph:Monthly data",
+       subtitle = "Graph: Monthly data",
        caption = "")+theme(plot.title = element_text(hjust = 0.5))
-vs<-vs+ scale_y_continuous(sec.axis = sec_axis(~./200, name = ""))
+vs<-vs+ scale_y_continuous(sec.axis = sec_axis(~./200, name = "")) # adds one more y scale,to compare search and price
 vs
 
 ```
