@@ -49,6 +49,8 @@ Picture source:https://www.forbes.com/sites/forbesfinancecouncil/2018/12/05/the-
 
 ##### Hvordan har avkastningen til Bitcoin hvert mot andre assets? Kan bitcoin være en safehaven eller en hedge mot dårligere tider?
 
+##### How has the return to Bitcoin been against other assets? Is it possible that bitcoin can be a safe haven or maybe a hedge against bad times?
+
 &nbsp;
 &nbsp;
 &nbsp;
@@ -304,6 +306,7 @@ p<-df %>%
 p
 ```
 
+Here is a graph showing the best investment, given these 5 assets over time: Just pull the slidebar
 ```{r message=FALSE, echo=FALSE,warning=FALSE}
 ui <- fluidPage(
   titlePanel(title=h4("When did you invest?", align="center")),
