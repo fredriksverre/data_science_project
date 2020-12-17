@@ -61,7 +61,7 @@ library(gtrendsR) # Download Google Data
 &nbsp;
 
 
-![Bitvoin bilde](https://thumbor.forbes.com/thumbor/960x0/https%3A%2F%2Fspecials-images.forbesimg.com%2Fdam%2Fimageserve%2F908633080%2F960x0.jpg%3Ffit%3Dscale)
+![Bitcoin bilde](https://thumbor.forbes.com/thumbor/960x0/https%3A%2F%2Fspecials-images.forbesimg.com%2Fdam%2Fimageserve%2F908633080%2F960x0.jpg%3Ffit%3Dscale)
 Picture source:https://www.forbes.com/sites/forbesfinancecouncil/2018/12/05/the-top-10-risks-of-bitcoin-investing-and-how-to-avoid-them/?sh=55fff8a52407
 &nbsp;
 &nbsp;
@@ -507,6 +507,14 @@ tidyverse_rolling_corr2 %>%
 
 ```
 
+```{r message=FALSE, echo=FALSE, warning=FALSE}
+tidyverse_static_correlations2 <- na.omit(tidyverse_static_correlations2)
+
+tidyverse_static_correlations2 <- tidyverse_static_correlations2 %>% rename(Static_correlation= "SP500")
+
+knitr::kable(tidyverse_static_correlations2)
+```
+
 
 #### 2020
 When only looking at the year 2020 it shows lower coefficients of variation on all investments. This 
@@ -598,7 +606,13 @@ tidyverse_rolling_corr3 %>%
 
 ```
 
+```{r message=FALSE, echo=FALSE, warning=FALSE}
+tidyverse_static_correlations3 <- na.omit(tidyverse_static_correlations3)
 
+tidyverse_static_correlations3 <- tidyverse_static_correlations3 %>% rename(Static_correlation = "SP500")
+
+knitr::kable(tidyverse_static_correlations3)
+```
 
 Er dataen vi har brukt valid i forhold til statistiske regler? 
 
@@ -704,6 +718,8 @@ vs
 ### Final Analysis
 What did you learn about the data? How did you answer the questions? How can you justify your answers?
 
+
+![Correlation test SP500 vs Gold](correlation.png)
 &nbsp;
 &nbsp;
 &nbsp;
@@ -734,5 +750,8 @@ https://finance.yahoo.com/quote/%5EVIX/history?period1=1446768000&period2=160462
 
 ###### S&P500
 https://finance.yahoo.com/quote/%5EGSPC/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
+
+######Picture source
+https://www.forbes.com/sites/forbesfinancecouncil/2018/12/05/the-top-10-risks-of-bitcoin-investing-and-how-to-avoid-them/?sh=55fff8a52407
 
 
