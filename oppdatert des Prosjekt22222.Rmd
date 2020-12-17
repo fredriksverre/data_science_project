@@ -9,7 +9,7 @@ output:
     smooth_scroll: false
     toc_depth: 3
 runtime: shiny
-date: "last updated `r format(Sys.time(), '%d %B %Y')`"
+date: "Last updated `r format(Sys.time(), '%d %B %Y')`"
 ---
 <!---
 DATA:
