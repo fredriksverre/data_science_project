@@ -267,6 +267,7 @@ ETH2020 <- ETH %>% filter(week>= "2020-01-01")
 BTC2020 <- BTC %>% filter(week>= "2020-01-01")
 Gold2020 <- Gold %>% filter(week>= "2020-01-01")
 SP500_2020 <- SP500 %>% filter(week>= "2020-01-01")
+VIX2020 <- VIX %>% filter(week>= "2020-01-01")
 
 ###Taking weekly logarithmic return of all df
 
@@ -293,6 +294,14 @@ log_returns2 <- cbind(log_returns2)
 log_returns2 <- rbind(0,log_returns2)
 
 SP500_2020 <- cbind(SP500_2020, log_returns2)
+# 
+log_returns2 <- diff(log(VIX2020$Price), lag=1)
+
+log_returns2 <- cbind(log_returns2)
+
+log_returns2 <- rbind(0,log_returns2)
+
+VIX2020 <- cbind(VIX2020, log_returns2)
 
 # Making data long
 df2<-bind_rows(BTC2020,Gold2020,SP500_2020)
@@ -389,6 +398,60 @@ shinyApp(ui, server) #making it rain
 ```
 
 
+```{r message=FALSE, echo=FALSE, warning=FALSE}
+
+### Asset return for 2016-2020
+
+# ETH Returns
+ETH3 <- ETH %>%
+  tq_transmute(select     = Price, 
+               mutate_fun = periodReturn,
+               period     = "weekly") %>% mutate(cumulative = cumsum(weekly.returns)) %>% 
+  # filter for only the last observation
+  filter(row_number() >= (n() - 0)) 
+
+# BTC Returns
+BTC3 <- BTC %>%
+  tq_transmute(select     = Price, 
+               mutate_fun = periodReturn,
+               period     = "weekly") %>% mutate(cumulative = cumsum(weekly.returns)) %>% 
+  # filter for only the last observation
+  filter(row_number() >= (n() - 0)) 
+
+# Gold Returns
+Gold3 <- Gold %>%
+  tq_transmute(select     = Price, 
+               mutate_fun = periodReturn,
+               period     = "weekly") %>% mutate(cumulative = cumsum(weekly.returns)) %>% 
+  # filter for only the last observation
+  filter(row_number() >= (n() - 0)) 
+
+# SP500 Returns
+SP500_3 <- SP500 %>%
+  tq_transmute(select     = Price, 
+               mutate_fun = periodReturn,
+               period     = "weekly") %>% mutate(cumulative = cumsum(weekly.returns)) %>% 
+  # filter for only the last observation
+  filter(row_number() >= (n() - 0)) 
+
+# VIX Returns
+VIX3 <- VIX %>%
+  tq_transmute(select     = Price, 
+               mutate_fun = periodReturn,
+               period     = "weekly") %>% mutate(cumulative = cumsum(weekly.returns)) %>% 
+  # filter for only the last observation
+  filter(row_number() >= (n() - 0)) 
+
+# Calculate CV / return asset 2016-2020
+
+#raster::cv(BTC$Price)/ BTC3$cumulative
+#raster::cv(Gold$Price)/ Gold3$cumulative
+#raster::cv(SP500$Price)/ SP500_3$cumulative
+#raster::cv(ETH$Price)/ ETH3$cumulative
+#raster::cv(VIX$Price)/ VIX3$cumulative
+
+```
+
 ### Risk Assessment and Correlation
 
 A part of the overall evaluation in the particular investments and one of our initial questions involve an assessment of risk. What is the undertaken risk when investing in these assets?
@@ -412,6 +475,23 @@ In the analysis the coefficient of variation are relative measurements. This pla
 
 
 When calculating the coefficients of variation of the assets in the entire period it becomes evident that both Bitcoin and Ethereum have a high degree of volatility. The initially lucrative rates of return come with associated risks. Gold and the S&P 500 have substantially lower coefficient of variation, indicating a greater degree of stability.. It is worth noting that coefficient of variation of gold and the S&P 500 are nearly equivalent. Thus being similar in the risk return tradeoff. 
+
+&nbsp;
+&nbsp;
+
+#### Risk reward 2016-2020
+
+**Risk/reward Bitcoin:** `r raster::cv(BTC$Price)/BTC3$cumulative ` 
+
+**Risk/reward Gold:** `r raster::cv(Gold$Price)/Gold3$cumulative ` 
+
+**Risk/reward S&P500:** `r raster::cv(SP500$Price)/SP500_3$cumulative ` 
+
+**Risk/reward Ethereum:** `r raster::cv(ETH$Price)/ETH3$cumulative ` 
+
+**Risk/reward VIX:** `r raster::cv(VIX$Price)/VIX3$cumulative ` 
+
+Risk reward is calculated by taking CV/asset return.
 
 &nbsp;
 &nbsp;
@@ -497,12 +577,63 @@ tidyverse_rolling_corr2 %>%
 ```
 
 ```{r message=FALSE, echo=FALSE, warning=FALSE}
+# Remove N/A values
 tidyverse_static_correlations2 <- na.omit(tidyverse_static_correlations2)
-
+# Wrangling
 tidyverse_static_correlations2 <- tidyverse_static_correlations2 %>% rename(Static_correlation= "SP500")
-
+# Making table of static correlations 2016-2020
 knitr::kable(tidyverse_static_correlations2)
 ```
+
+
+```{r message=FALSE, echo=FALSE, warning=FALSE}
+
+###Asset return for 2020
+
+# ETH Returns
+ETH4 <- ETH2020 %>%
+  tq_transmute(select     = Price, 
+               mutate_fun = periodReturn,
+               period     = "weekly") %>% mutate(cumulative = cumsum(weekly.returns)) %>% 
+  # filter for only the last observation
+  filter(row_number() >= (n() - 0)) 
+
+# BTC Returns
+BTC4 <- BTC2020 %>%
+  tq_transmute(select     = Price, 
+               mutate_fun = periodReturn,
+               period     = "weekly") %>% mutate(cumulative = cumsum(weekly.returns)) %>% 
+  # filter for only the last observation
+  filter(row_number() >= (n() - 0)) 
+
+# Gold Returns
+Gold4 <- Gold2020 %>%
+  tq_transmute(select     = Price, 
+               mutate_fun = periodReturn,
+               period     = "weekly") %>% mutate(cumulative = cumsum(weekly.returns)) %>% 
+  # filter for only the last observation
+  filter(row_number() >= (n() - 0)) 
+
+# SP500 Returns
+SP500_4 <- SP500_2020 %>%
+  tq_transmute(select     = Price, 
+               mutate_fun = periodReturn,
+               period     = "weekly") %>% mutate(cumulative = cumsum(weekly.returns)) %>% 
+  # filter for only the last observation
+  filter(row_number() >= (n() - 0)) 
+
+# VIX Returns
+VIX4 <- VIX2020 %>%
+  tq_transmute(select     = Price, 
+               mutate_fun = periodReturn,
+               period     = "weekly") %>% mutate(cumulative = cumsum(weekly.returns)) %>% 
+  # filter for only the last observation
+  filter(row_number() >= (n() - 0)) 
+
+
+```
+
+
 
 &nbsp;
 
@@ -522,6 +653,20 @@ knitr::kable(tidyverse_static_correlations2)
 
 When only looking at the year 2020 it shows lower coefficients of variation on all investments, it shows that every value has been lowered compared to the 2016-2020 period. 2020 has been a year of greater stability for cryptocurrencies despite being impacted by the pandemic. This might be the result of the fact that cryptocurrencies is a fairly new asset that only has been around for approximately ten years and is still maturing, and probably not the pandemic making it increasingly stable. As for the S&P 500 measuring lower risk might be surprising. Also visible from the “2020 cumulative graph” markets may have not been as volatile as initially thought during the pandemic.
  
+&nbsp;
+
+#### Risk reward 2020
+
+**Risk/reward Bitcoin:** `r raster::cv(BTC2020$Price)/BTC4$cumulative ` 
+
+**Risk/reward Gold:** `r raster::cv(Gold2020$Price)/Gold4$cumulative ` 
+
+**Risk/reward S&P500:** `r raster::cv(SP500_2020$Price)/SP500_4$cumulative ` 
+
+**Risk/reward Ethereum:** `r raster::cv(ETH2020$Price)/ETH4$cumulative ` 
+
+**Risk/reward VIX:** `r raster::cv(VIX2020$Price)/VIX4$cumulative ` 
+
 &nbsp;
 
 These graphs are showing Correlation between weekly-return.
@@ -587,10 +732,11 @@ tidyverse_rolling_corr3 %>%
 ```
 
 ```{r message=FALSE, echo=FALSE, warning=FALSE}
+# Removing N/A values
 tidyverse_static_correlations3 <- na.omit(tidyverse_static_correlations3)
-
+# Wrangling
 tidyverse_static_correlations3 <- tidyverse_static_correlations3 %>% rename(Static_correlation = "SP500")
-
+# Making table of static correlations
 knitr::kable(tidyverse_static_correlations3)
 ```
 
@@ -602,6 +748,7 @@ It is challenging to give a clear answer to the best asset for diversification w
 &nbsp;
 &nbsp;
 &nbsp;
+
 
 ### Is bitcoin a safe haven asset?
 
