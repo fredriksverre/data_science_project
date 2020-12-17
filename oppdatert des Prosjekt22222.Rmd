@@ -139,16 +139,21 @@ These questions require different approaches and a variety data to be analysed. 
 
 ```{r message=FALSE, echo=FALSE}
 
-### Data
-# Getting data from API 
+### Importing Data
+
+# Getting data from Quandl API.
 Gold <-Quandl("LBMA/GOLD", api_key="4TmA83fLoY_UpQJVjVJu", start_date="2016-01-04", end_date="2022-01-01")
+# Selecting culumns and renameing
 Gold <- Gold %>% select("Date", "USD (PM)") %>% rename(Price = "USD (PM)")
+# Removing N/A values
+Gold <- na.omit(Gold)
 
 # Getting data from yahoo
 ETH <- getSymbols("ETH-USD", auto.assign=FALSE, from="2016-01-04", src='yahoo')
 BTC <- getSymbols("BTC-USD", auto.assign=FALSE, from="2016-01-04", src='yahoo')
-SP500 <- getSymbols("^GSPC", auto.assign=FALSE, from="2016-01-04", src='yahoo') # Datar 
-VIX <- getSymbols("^VIX", auto.assign=FALSE, from="2016-01-04", src='yahoo') # Data starter 
+SP500 <- getSymbols("^GSPC", auto.assign=FALSE, from="2016-01-04", src='yahoo') 
+VIX <- getSymbols("^VIX", auto.assign=FALSE, from="2016-01-04", src='yahoo') 
+
 # Making data from xts to normal df. Picking columns and renameing.
 ETH <- zoo::fortify.zoo(ETH)
 ETH <- ETH %>% select("Index","ETH-USD.Close") %>% mutate(Asset = "Ethereum") %>% rename(Date ="Index", Price = "ETH-USD.Close")
@@ -162,63 +167,55 @@ SP500 <- SP500 %>% select("Index","GSPC.Close") %>% mutate(Asset = "S&P500") %>%
 VIX <- zoo::fortify.zoo(VIX)
 VIX <- VIX %>% select("Index","VIX.Close") %>% mutate(Asset = "VixIndex") %>% rename(Date ="Index", Price = "VIX.Close")
 
+### Making data from daily to weekly form
+
 # Making new variable that sorts weekly
 BTC$week <- floor_date(BTC$Date, "week")
-# Grouping then new variable week and taking the mean to get weekly price
+# Grouping then new variable week and taking the mean to get weekly price. 
 BTC <- BTC %>%
   group_by(week) %>%
-  summarize(mean = mean(Price))
-#
-BTC <- BTC %>% rename(Price = "mean") %>% mutate(Asset = "Bitcoin")
+  summarize(mean = mean(Price)) %>% 
+ #Renameing and mutating in a new column that is called Asset and is filled with Bitcoin
+  rename(Price = "mean") %>% mutate(Asset = "Bitcoin")
 
-# 
+#
 ETH$week <- floor_date(ETH$Date, "week")
 # 
 ETH <- ETH %>%
   group_by(week) %>%
-  summarize(mean = mean(Price))
+  summarize(mean = mean(Price)) %>% 
+  rename(Price = "mean") %>% mutate(Asset = "Ethereum")
+
 #
-ETH <- ETH %>% rename(Price = "mean") %>% mutate(Asset = "Ethereum")
-
-
-# 
 SP500$week <- floor_date(SP500$Date, "week")
 #
 SP500 <- SP500 %>%
   group_by(week) %>%
-  summarize(mean = mean(Price))
-#
-SP500 <- SP500 %>% rename(Price = "mean") %>% mutate(Asset = "SP500")
+  summarize(mean = mean(Price))%>% rename(Price = "mean") %>% mutate(Asset = "SP500")
 
-
-# Removing N/A values
-Gold <- na.omit(Gold)
 # 
 Gold$week <- floor_date(Gold$Date, "week")
 #
 Gold <- Gold %>%
   group_by(week) %>%
-  summarize(mean = mean(Price))
-#
-Gold <- Gold %>% rename(Price = "mean") %>% mutate(Asset = "Gold")
+  summarize(mean = mean(Price)) %>% rename(Price = "mean") %>% mutate(Asset = "Gold")
 
 # 
 VIX$week <- floor_date(VIX$Date, "week")
 #
 VIX <- VIX %>%
   group_by(week) %>%
-  summarize(mean = mean(Price))
-#
-VIX <- VIX %>% rename(Price = "mean") %>% mutate(Asset = "VIX")
+  summarize(mean = mean(Price)) %>% rename(Price = "mean") %>% mutate(Asset = "VIX")
 
+### Taking weekly logarithmic return
 
-# Making LOG percentage change from day to day
+# Making logarithmic percentage change from week to week
 log_returns <- diff(log(ETH$Price), lag=1)
-# Making df og LOG
+# Making log_returns to a dataframe
 log_returns <- cbind(log_returns)
-# Putting 0 at the top of LOG, to make it same length as other variables
+# Putting 0 at the top of log_returns, to make it same length as other variables
 log_returns <- rbind(0,log_returns)
-#Binding LOG togheter with main df
+#Binding log_returns togheter with main df
 ETH <- cbind(ETH, log_returns)
 
 #
@@ -273,7 +270,8 @@ BTC2020 <- BTC %>% filter(week>= "2020-01-01")
 Gold2020 <- Gold %>% filter(week>= "2020-01-01")
 SP500_2020 <- SP500 %>% filter(week>= "2020-01-01")
 
-# Taking log of df
+###Taking weekly logarithmic return of all df
+
 log_returns2 <- diff(log(BTC2020$Price), lag=1)
 
 log_returns2 <- cbind(log_returns2)
@@ -300,7 +298,7 @@ SP500_2020 <- cbind(SP500_2020, log_returns2)
 
 # Making data long
 df2<-bind_rows(BTC2020,Gold2020,SP500_2020)
-# Making cumulative count
+# Making cumulative
 df2 <- df2 %>% select(week,Price,Asset,log_returns2) %>% group_by(Asset)%>% mutate(cumulative = cumsum(log_returns2))
 ```
 
@@ -342,7 +340,7 @@ p<-df %>%
   geom_line(aes(color=Asset))+
   ylab(expression("Change on cumulative form")) +
   xlab("Date") +
-  labs(title = "Logaritmic return on cumulativ form from 2016-2020",
+  labs(title = "Logarithmic return on cumulativ form from 2016-2020",
        subtitle = "",
        caption = "")+theme(plot.title = element_text(hjust = 0.5))
 
@@ -405,12 +403,12 @@ When calculating the coefficients of variation of the assets in the entire perio
 
 ```{r message=FALSE, echo=FALSE, warning=FALSE}
 
-# Making data long
-df3 <- bind_rows(ETH,BTC,Gold,VIX)
+### Rolling and static correlation 2016-2020
 
-df3 <- df3 %>% select(week,Price,Asset)
-
-SP500_1 <- SP500 %>% select(week,Price) %>% tibble::as_tibble()
+# Making data long and selecting columns
+df3 <- bind_rows(ETH,BTC,Gold,VIX) %>% select(week,Price,Asset)
+# Selecting columns
+SP500_1 <- SP500 %>% select(week,Price)
 
 # Asset Returns
 df3 <- df3 %>%
@@ -452,11 +450,12 @@ tidyverse_rolling_corr2 <- df3 %>%
     col_rename = "rolling_corr"
   )
 
-# Join static correlations with rolling correlations
+# Wrangling static correlation
 tidyverse_static_correlations2 <- tidyverse_static_correlations2 %>%
   select(term, SP500) %>%
   rename(Asset = term)
 
+# Left joining the static correlation to the rolling correlation df
 tidyverse_rolling_corr2 <- tidyverse_rolling_corr2 %>%
   left_join(tidyverse_static_correlations2, by = "Asset") %>%
   rename(static_corr = SP500)
@@ -513,6 +512,9 @@ These graphs are showing Correlation between weekly-return.
 
 
 ```{r message=FALSE, echo=FALSE, warning=FALSE}
+
+### Rolling and static correlation 2020
+
 # Correlation table
 tidyverse_static_correlations3 <- df3 %>% filter(week>= "2020-01-01") %>%
   # Data wrangling
@@ -592,7 +594,7 @@ df2 %>%
   geom_line(aes(color=Asset))+
   ylab(expression("Return on cumulativ form")) +
   xlab("Date") +
-  labs(title = "Logaritmic return on cumulative form 2020",
+  labs(title = "Logarithmic return on cumulative form 2020",
        subtitle = "",
        caption = "")+theme(plot.title = element_text(hjust = 0.5))
 
