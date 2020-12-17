@@ -718,7 +718,7 @@ vs
 What did you learn about the data? How did you answer the questions? How can you justify your answers?
 
 
-![Correlation test SP500 vs Gold](correlation.png)
+[Correlation test SP500 vs Gold](correlation.png)
 &nbsp;
 &nbsp;
 &nbsp;
