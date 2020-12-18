@@ -3,13 +3,13 @@
 ## This is our data science project "Can Bitcoin be a safe haven in a recession?"
 We are three economics students who made this project in the subject BED-2056 and this is our final project. We are doing an analysis of bitcoin, gold and the general market for the years 2016-2020. 
 
-## Screencast for project
+### Screencast for project
 
 Here is a link to our screencast that is posted on youtube:
 
 https://www.youtube.com/watch?v=j8CjwCs5jvE&t=3s
 
-## Problems running the rMarkdown file? 
+### Problems running the rMarkdown file? 
 
 We where not able to run this Rmarkdown in the Rstudio online edition for some unknown reason.
 
@@ -18,9 +18,7 @@ It has been a problem running this Rmarkdown on the weekend and until the stock 
 Since the Rmd file is Runtime:shiny it is not possible to knit it to HTML file. 
 
 
-
-
-### Project data sources:
+#### Project data sources:
 
 ###### Quandl API - Gold Prices
 https://www.quandl.com/data/LBMA/GOLD-Gold-Price-London-Fixing
