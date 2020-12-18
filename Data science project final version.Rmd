@@ -116,7 +116,7 @@ The American investor Tyler Winklevoss tweeted on the 27th of February 2020.
 &nbsp;
 
 
-### Initial Questions
+### What is a safe haven?
 
 The key issue in this report whether Bitcoin have become a safe haven. Before analysing the data, it would be helpful to see if Bitcoin possess the characteristics of a safe haven asset. 
 Safe havens have:
@@ -763,7 +763,7 @@ tidyverse_static_correlations3 <- tidyverse_static_correlations3 %>% rename(Stat
 knitr::kable(tidyverse_static_correlations3)
 ```
 
-Looking at the correlation for 2020, we have compared all assets to the S&P 500 index. While looking at the graph of correlations for 2020, Bitcoin has a higher static correlation than Gold towards S&P 500. Correlation can not only be observed static, because the correlation is in motion all the time. Looking at the rolling correlations it becomes obvious that gold was actually around -0,2 correlated in April 2020 when the economical impact of covid-19 hit the western world. At the same time Bitcoin positively correlated about 0,1. So in that sense it was more profitable to hold gold at that time as is also visible in the cumulative graph. Throughout 2020 we can see Bitcoin at times turning more uncorrelated, especially towards the end of the year. 
+Looking at the correlation for 2020, we have compared all assets to the S&P 500 index. While looking at the graph of correlations for 2020, Bitcoin has a higher static correlation than Gold towards S&P 500. Correlation can not only be observed static, because the correlation is in motion all the time. Looking at the rolling correlations we can see that gold was less correlated in the begining of 2020 right after the economical impact of covid-19 hit the western world. As we go longer throughout the 2020 we can see Bitcoin at times turning more uncorrelated, especially towards the end of the year. 
 
 It is challenging to give a clear answer to the best asset for diversification when looking at the rolling correlation. Gold for the majority of the time is less correlated to the S & P 500 index than Bitcoin. In regards to correlation gold looks to be the better option for risk diversification. 
 
