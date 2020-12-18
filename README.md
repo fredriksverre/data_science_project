@@ -1,10 +1,6 @@
 # data_science_project
 Data Science Project // Exam
 
-
-# data_science_project
-Data Science Project // Exam
-
 ## This is our data science project "Can Bitcoin be a safe haven in a recession?"
 We are three economics students who made this project in the subject BED-2056 and this is our final project. 
 
