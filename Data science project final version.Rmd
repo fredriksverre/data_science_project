@@ -373,7 +373,7 @@ df %>%
   geom_line(aes(color=Asset))+
   ylab(expression("Cumulative Change")) +
   xlab("Date") +
-  labs(title = "Cumulative Logarithmic Return from 2016-",
+  labs(title = "Cumulative Logarithmic Return from 2016 until now",
        subtitle = "Graph: Weekly data",
        caption = "")+theme(plot.title = element_text(hjust = 0.5))
 
