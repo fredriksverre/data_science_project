@@ -1,0 +1,949 @@
+---
+title: "Can Bitcoin be a safe haven in a recession?"
+author: Alf Henrik Heggelund, Fredrik Sverre Nilssen & Andreas Reiten Skundberg
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    collapsed: false
+    smooth_scroll: false
+    toc_depth: 3
+runtime: shiny
+date: "Last updated `r format(Sys.time(), '%d %B %Y')`"
+---
+<!---
+DATA:
+###### Quandl API - Gold Prices
+https://www.quandl.com/data/LBMA/GOLD-Gold-Price-London-Fixing
+
+###### Bitcoin
+https://finance.yahoo.com/quote/BTC-USD/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
+
+###### Ethereum
+https://finance.yahoo.com/quote/ETH-USD/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
+
+###### Gull
+https://finance.yahoo.com/quote/GC%3DF/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
+
+###### VIX
+https://finance.yahoo.com/quote/%5EVIX/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
+
+###### S&P500
+https://finance.yahoo.com/quote/%5EGSPC/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
+
+-->
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(httr)
+library(readr)
+library(quantmod)
+library(lubridate)
+library(Quandl)
+library(PerformanceAnalytics)
+library(xts)
+library(tidyquant)
+library(cranlogs)   # For inspecting package downloads over time
+library(corrr)      # Tidy correlation tables and correlation plotting
+library(cowplot) 
+library(gtrendsR) # Download Google Data
+
+
+```
+
+
+&nbsp;
+&nbsp;
+&nbsp;
+
+
+![Bitcoin bilde](https://thumbor.forbes.com/thumbor/960x0/https%3A%2F%2Fspecials-images.forbesimg.com%2Fdam%2Fimageserve%2F908633080%2F960x0.jpg%3Ffit%3Dscale)
+Picture source:https://www.forbes.com/sites/forbesfinancecouncil/2018/12/05/the-top-10-risks-of-bitcoin-investing-and-how-to-avoid-them/?sh=55fff8a52407
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+
+### Overview and Motivation 
+
+Our group consist of three economics student that wanted to explore an issue related to economics. Rather than reexploring traditional economical facts or a well-established phenomenon we set out to uncover a somewhat unexplored issue. An issue that might be more evident during the recent economic recession caused by the 2020 Pandemic. 
+
+This recession, as well as any other makes the phenomenon of safe havens resurface. Financial safe havens are assets that retain or increases in value during an economic downturn. Examples of proven safe havens would be precious metals like gold, currencies as the US dollar, Swiss franc and the Japanese yen, or government bonds. 
+
+With the rising popularity of cryptocurrencies over the past years we set out to investigate whether cryptocurrencies, particularly Bitcoin had become a safe haven during the Covid-19 recession. 
+
+The underlying motivation for choosing this issue for the data science project was our own experience during the covid-19 recession. As amateur investors in the stock market and cryptocurrencies we experienced the market downswing first-hand as our portfolio decreased in value. Therefore, we were left wondering whether redirecting investments towards bitcoin would prove be a beneficial hedge and risk diversification. 
+
+With our newfound knowledge and ability to use data science to investigate this issue, we wanted to create a reliable report answering this question. By analysing and visualising accessible data we would prove or disprove our initial hypothesis. 
+
+
+&nbsp;
+&nbsp;
+&nbsp;
+
+
+### Related Work
+
+The safe haven properties of cryptocurrencies have been the inspiration of several studies, and the pandemic and the following market turbulence marked the first opportunity to examine this properly. 
+
+Bitcoin as a decentralized digital currency with limited supply have already been labelled a safe haven by some investors. 
+The American investor Tyler Winklevoss tweeted on the 27th of February 2020.
+
+[“At some point people will wake up and realize that bitcoin is the best safe haven asset the world has ever seen. Until then, opportunity abounds.”
+ ](https://twitter.com/tyler/status/1232875921025249280) 
+
+&nbsp;
+&nbsp;
+&nbsp;
+
+
+### Initial Questions
+
+The key issue in this report whether Bitcoin have become a safe haven. Before analysing the data, it would be helpful to see if Bitcoin possess the characteristics of a safe haven asset. 
+Safe havens have:
+
+**High liquidity:** It easily can be converted into cash. 
+
+**Limited supply:** Maintains its value due to the scarcity of the asset.
+
+**Sustained demand:** The asset keeps it high demand.
+
+**Long term performance:** The assets utilization is upheld long term 
+
+**Persistence:** The assets quality does not decline
+
+Bitcoin do hold these characteristics. Bitcoin maintains a high trade volume, with low fees and a market that is always open. The Bitcoin supply is limited to 21 million in total and will undoubtedly be less than its demand. Bitcoin continues to be the leader in the cryptocurrency market and is expected to maintain this position. The utilization of the asset is still somewhat unclear as investor tends to hold their investment rather than spending it. 
+Finally, the quality of digital currency does not decline in any way.    
+
+Now that the safe haven properties of bitcoin have been cleared, the overall evaluation of bitcoin remained. Prior to further analysing bitcoin as a safe haven, we wanted a complete overview of Bitcoin as an investment. Answering questions like:
+
+What were the rate of returns of Bitcoin compared to other assets? 
+How did it compare to rivaling cryptocurrencies, the overall stock market, or a safe haven asset such as gold?  
+What is the risk involved with these investments?
+How to these assets act in times of market turbulence and expected volatility? 
+Is bitcoin a valuable investment, and how have the rates of return developed?
+Furthermore, who are investing in Bitcoin? Are bitcoin investors amateurs jumping the bandwagon on a hype without a clear understanding of its qualities and value. Or calculated investors making larger investments envisioning a steady rate of return and future performance.  
+
+These questions require different approaches and a variety data to be analysed. This report will provide an overall assessment of bitcoins progress, qualities and its response to market volatility. Over the course of the project our initial question became part of a bigger analysis, which aimed to be as objective as possible. 
+
+&nbsp;
+&nbsp;
+&nbsp;
+
+
+```{r message=FALSE, echo=FALSE}
+
+### Importing Data
+
+# Getting data from Quandl API.
+Gold <-Quandl("LBMA/GOLD", api_key="4TmA83fLoY_UpQJVjVJu", start_date="2016-01-04", end_date="2022-01-01")
+# Selecting culumns and renameing
+Gold <- Gold %>% select("Date", "USD (PM)") %>% rename(Price = "USD (PM)")
+# Removing N/A values
+Gold <- na.omit(Gold)
+
+# Getting data from yahoo
+ETH <- getSymbols("ETH-USD", auto.assign=FALSE, from="2016-01-04", src='yahoo')
+BTC <- getSymbols("BTC-USD", auto.assign=FALSE, from="2016-01-04", src='yahoo')
+SP500 <- getSymbols("^GSPC", auto.assign=FALSE, from="2016-01-04", src='yahoo') 
+VIX <- getSymbols("^VIX", auto.assign=FALSE, from="2016-01-04", src='yahoo') 
+
+# Making data from xts to normal df. Picking columns and renameing.
+ETH <- zoo::fortify.zoo(ETH)
+ETH <- ETH %>% select("Index","ETH-USD.Close") %>% mutate(Asset = "Ethereum") %>% rename(Date ="Index", Price = "ETH-USD.Close")
+
+BTC <- zoo::fortify.zoo(BTC)
+BTC <- BTC %>% select("Index","BTC-USD.Close") %>% mutate(Asset = "Bitcoin") %>% rename(Date ="Index", Price = "BTC-USD.Close")
+
+SP500 <- zoo::fortify.zoo(SP500)
+SP500 <- SP500 %>% select("Index","GSPC.Close") %>% mutate(Asset = "S&P500") %>% rename(Date ="Index", Price = "GSPC.Close")
+
+VIX <- zoo::fortify.zoo(VIX)
+VIX <- VIX %>% select("Index","VIX.Close") %>% mutate(Asset = "VixIndex") %>% rename(Date ="Index", Price = "VIX.Close")
+
+### Making data from daily to weekly form
+
+# Making new variable that sorts weekly
+BTC$week <- floor_date(BTC$Date, "week")
+# Grouping then new variable week and taking the mean to get weekly price. 
+BTC <- BTC %>%
+  group_by(week) %>%
+  summarize(mean = mean(Price)) %>% 
+ #Renameing and mutating in a new column that is called Asset and is filled with Bitcoin
+  rename(Price = "mean") %>% mutate(Asset = "Bitcoin")
+
+#
+ETH$week <- floor_date(ETH$Date, "week")
+# 
+ETH <- ETH %>%
+  group_by(week) %>%
+  summarize(mean = mean(Price)) %>% 
+  rename(Price = "mean") %>% mutate(Asset = "Ethereum")
+
+#
+SP500$week <- floor_date(SP500$Date, "week")
+#
+SP500 <- SP500 %>%
+  group_by(week) %>%
+  summarize(mean = mean(Price))%>% rename(Price = "mean") %>% mutate(Asset = "SP500")
+
+# 
+Gold$week <- floor_date(Gold$Date, "week")
+#
+Gold <- Gold %>%
+  group_by(week) %>%
+  summarize(mean = mean(Price)) %>% rename(Price = "mean") %>% mutate(Asset = "Gold")
+
+# 
+VIX$week <- floor_date(VIX$Date, "week")
+#
+VIX <- VIX %>%
+  group_by(week) %>%
+  summarize(mean = mean(Price)) %>% rename(Price = "mean") %>% mutate(Asset = "VIX")
+
+### Taking weekly logarithmic return
+
+# Making logarithmic percentage change from week to week
+log_returns <- diff(log(ETH$Price), lag=1)
+# Making log_returns to a dataframe
+log_returns <- cbind(log_returns)
+# Putting 0 at the top of log_returns, to make it same length as other variables
+log_returns <- rbind(0,log_returns)
+#Binding log_returns togheter with main df
+ETH <- cbind(ETH, log_returns)
+
+#
+log_returns <- diff(log(BTC$Price), lag=1)
+
+log_returns <- cbind(log_returns)
+
+log_returns <- rbind(0,log_returns)
+
+BTC <- cbind(BTC, log_returns)
+
+#
+log_returns <- diff(log(SP500$Price), lag=1)
+
+log_returns <- cbind(log_returns)
+
+log_returns <- rbind(0,log_returns)
+
+SP500 <- cbind(SP500, log_returns)
+
+#
+log_returns <- diff(log(Gold$Price), lag=1)
+
+log_returns <- cbind(log_returns)
+
+log_returns <- rbind(0,log_returns)
+
+Gold <- cbind(Gold, log_returns)
+
+#
+log_returns <- diff(log(VIX$Price), lag=1)
+
+log_returns <- cbind(log_returns)
+
+log_returns <- rbind(0,log_returns)
+
+VIX <- cbind(VIX, log_returns)
+
+# Making data long
+df <- bind_rows(ETH,BTC,SP500,Gold,VIX)
+
+# Making log_returns cumulative
+df <- df %>% group_by(Asset)%>% mutate(cumulative = cumsum(log_returns))
+
+```
+
+
+```{r message=FALSE, echo=FALSE}
+# Filter for year 2020
+ETH2020 <- ETH %>% filter(week>= "2020-01-01")
+BTC2020 <- BTC %>% filter(week>= "2020-01-01")
+Gold2020 <- Gold %>% filter(week>= "2020-01-01")
+SP500_2020 <- SP500 %>% filter(week>= "2020-01-01")
+VIX2020 <- VIX %>% filter(week>= "2020-01-01")
+
+###Taking weekly logarithmic return of all df
+
+log_returns2 <- diff(log(BTC2020$Price), lag=1)
+
+log_returns2 <- cbind(log_returns2)
+
+log_returns2 <- rbind(0,log_returns2)
+
+BTC2020 <- cbind(BTC2020, log_returns2)
+# 
+log_returns2 <- diff(log(Gold2020$Price), lag=1)
+
+log_returns2 <- cbind(log_returns2)
+
+log_returns2 <- rbind(0,log_returns2)
+
+Gold2020 <- cbind(Gold2020, log_returns2)
+# 
+log_returns2 <- diff(log(SP500_2020$Price), lag=1)
+
+log_returns2 <- cbind(log_returns2)
+
+log_returns2 <- rbind(0,log_returns2)
+
+SP500_2020 <- cbind(SP500_2020, log_returns2)
+# 
+log_returns2 <- diff(log(VIX2020$Price), lag=1)
+
+log_returns2 <- cbind(log_returns2)
+
+log_returns2 <- rbind(0,log_returns2)
+
+VIX2020 <- cbind(VIX2020, log_returns2)
+
+# Making data long
+df2<-bind_rows(BTC2020,Gold2020,SP500_2020)
+# Making cumulative
+df2 <- df2 %>% select(week,Price,Asset,log_returns2) %>% group_by(Asset)%>% mutate(cumulative = cumsum(log_returns2))
+```
+
+### Data
+
+Finding data on this topic initially seemed like a manageable task. Cryptocurrency and other financial markets rely on constant flow of publicly accessible data to function properly. 
+Using APIs was the preferred method but several obstacles complicated the process. Some APIs cost money and others proved difficult to operate. 
+
+Yahoo finance is a financial platform that provide reliable reports and with a global following. Yahoo finance gave access to CSV-files on the S&P 500, Bitcoin, Ethereum and VIX.
+Using the correct R-code opened up the possibility to import these files directly into R-studio. This makes the report more user-orientated and creates a dynamic code.  
+The data set received from Yahoo on gold prices revealed several gaps. Involving missing dates and values. We deemed it unusable and had to revisit the application of APIs. 
+Through Quandl it was manageable to make use of an API and retrieve data on gold from the London Bullion Market. 
+
+The data acquired from Yahoo finance came in a xts-format. Which made the date variable appear in a POXEIT-format. This format was somewhat new to us, but by use of the Zoo package we managed to transform it into a format more suited for our abilities. 
+
+After the data was in the correct formats, we used the dplyr package to manipulate and create a pipeline for the data. The data frames contained variables irrelevant to the analysis. These variables were removed by choosing columns with the select function. Then adding new variables to specify each asset. This made it more convenient to plot the data frame at later stage. 
+
+An obstacle when comparing cryptocurrency markets to other financial markets is that normal markets have limited trading hours and are closed during the weekend. The cryptocurrency market is unlimited and open all year. Observations for Bitcoin and Ethereum exceeded the observations for gold and the S&P 500 and VIX-indexes. This obstacle was solved by manipulating the data into weekly observations. By creating a mean of all the daily data with the summarize function within a week to generate a weekly price. The floor_date function made this possible, which makes all values within a week set to the same date assigned to a week variable. Then applying the group_by function arrange the data. 
+
+The data frame from the London Bullion Market contained several N/A values. Removing these was done with the omit function. 
+
+To visualise the rate of returns cumulatively it was necessary to calculate the logarithmic returns each week. By dividing the log of the first observation by the log of the following observation. (Log observation 1/ log observation 2). Then recreating the data frame using cbind. To do this it was necessary to use rbind function to enter an observation zero, to be able to connect the original data frame with the logarithmic returns. 
+Eventually using the cumsum function to summarise all grouped assets up against the logarithmic returns. Now all the data is cumulative, and it is possible to compare the returns of each asset.
+
+&nbsp;
+&nbsp;
+&nbsp;
+
+
+### Bitcoin Analysis
+
+Beginning with an examination of the cumulative growth in the chosen markets. Starting in 2016 the illustration shows the cumulative returns of Bitcoin, Ethereum, Gold, S&P 500 and the VIX. These assets were chosen for several comparative reasons. Ethereum which is a rivaling cryptocurrency have been included as an alternative investment in the cryptocurrency market. Gold as an asset is a well-established safe haven and has maintained its value over a long term. The S&P 500 is a stock index measuring the performance of the 500 largest companies listed on the American stock exchanges. It includes companies like Apple, Amazon, JP Morgan Chase etc. Representing a broad selection of American industries and works as an indicator for the overall economy. Lastly, the Cboe Volatility Index is included in the analysis. Abbreviated to VIX, it represents market expectations for volatility and is an indicator for market risk. 
+
+Looking at the entire four-year period it displays the two cryptocurrencies as the investments with highest returns. Ethereum leading the race by a margin nearly double bitcoins performance.  The rate of returns in S&P 500 and gold is shown to been minor in comparison. Nevertheless, has a greater degree of stability in its performance. The most notable growth in VIX is at the entry of 2020. Naturally the covid-19 pandemic created financial turbulence on a global scale and would be the explanation for the rapid growth in market volatility. 
+
+The illustration shows that both Bitcoin and Ethereum are corelated with market trends. As the VIX has increased growth traditional financial assets should experience reduced growth. The only asset not showing this inverse correlation is gold. 
+
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+
+```{r message=FALSE, echo=FALSE}
+# Plotting
+df %>% 
+  ggplot(aes(x=week, y=cumulative, group=Asset)) +
+  geom_line(aes(color=Asset))+
+  ylab(expression("Cumulative Change")) +
+  xlab("Date") +
+  labs(title = "Cumulative Logarithmic Return from 2016-",
+       subtitle = "Graph: Weekly data",
+       caption = "")+theme(plot.title = element_text(hjust = 0.5))
+
+
+```
+
+#### When did you invest?
+
+The rate of returns received in these assets vary considerably on when the investment occurred. If the investment took place at the start of the period, the returns would be identical to the  illustration above. But if the investment was placed on different dates within this period the performance fluctuates significantly. Ethereum which yields the highest returns in the overall period, is shown to be the weakest performer when isolating the period from 2018-2020. 
+
+
+```{r message=FALSE, echo=FALSE,warning=FALSE}
+ui <- fluidPage( # Making user interface
+  titlePanel(title=h4("Cumulative Logarithmic Return", align="center")),
+  sidebarLayout( 
+    sidebarPanel( 
+      sliderInput("df", "Dates:",min = as.Date("2016-01-01","%Y-%m-%d"), max =  as.Date(Sys.time(),"%Y-%m-%d"),value=c(as.Date("2018-01-01"),as.Date("2020-01-01")),timeFormat="%Y-%m-%d")),mainPanel(plotOutput("plot2")))) #Setting slidebar to read dates
+
+
+server <- function(input,output){
+  
+  #dat <- reactive({df[df$week %in% seq(from=min(df$week),to=max(df$week),by=1),]})
+  dat <- reactive({
+    test <- df[df$week %in% seq(from=min(input$df),to=max(input$df),by=1),] #making the data from df reactive(week), make it coloborate with slidebar
+    print(test)
+    test
+  })
+  #calculate the output plot
+  output$plot2<-renderPlot({
+    req(dat())# require interactive weekly data
+    ggplot(data=dat()%>%
+             group_by(Asset)%>% 
+             mutate(culinteractive=cumsum(log_returns)- lag(1, default = first(log_returns))),# delete first row of log-returnes when reactive, not first row because it is no lag there. 
+           aes(x=week,y=culinteractive),group=Asset)+geom_line(aes(color=Asset))+
+      ylab(expression("Change on cumulative form"))+
+      xlab("Date")},height = 300,width = 500)} # making it fit the output
+shinyApp(ui, server) #making it rain
+
+```
+
+
+```{r message=FALSE, echo=FALSE, warning=FALSE}
+
+### Asset return for 2016-2020
+
+# ETH Returns
+ETH3 <- ETH %>%
+  tq_transmute(select     = Price, 
+               mutate_fun = periodReturn,
+               period     = "weekly") %>% mutate(cumulative = cumsum(weekly.returns)) %>% 
+  # filter for only the last observation
+  filter(row_number() >= (n() - 0)) 
+
+# BTC Returns
+BTC3 <- BTC %>%
+  tq_transmute(select     = Price, 
+               mutate_fun = periodReturn,
+               period     = "weekly") %>% mutate(cumulative = cumsum(weekly.returns)) %>% 
+  # filter for only the last observation
+  filter(row_number() >= (n() - 0)) 
+
+# Gold Returns
+Gold3 <- Gold %>%
+  tq_transmute(select     = Price, 
+               mutate_fun = periodReturn,
+               period     = "weekly") %>% mutate(cumulative = cumsum(weekly.returns)) %>% 
+  # filter for only the last observation
+  filter(row_number() >= (n() - 0)) 
+
+# SP500 Returns
+SP500_3 <- SP500 %>%
+  tq_transmute(select     = Price, 
+               mutate_fun = periodReturn,
+               period     = "weekly") %>% mutate(cumulative = cumsum(weekly.returns)) %>% 
+  # filter for only the last observation
+  filter(row_number() >= (n() - 0)) 
+
+# VIX Returns
+VIX3 <- VIX %>%
+  tq_transmute(select     = Price, 
+               mutate_fun = periodReturn,
+               period     = "weekly") %>% mutate(cumulative = cumsum(weekly.returns)) %>% 
+  # filter for only the last observation
+  filter(row_number() >= (n() - 0)) 
+
+# Calculate CV / return asset 2016-2020
+
+#raster::cv(BTC$Price)/ BTC3$cumulative
+#raster::cv(Gold$Price)/ Gold3$cumulative
+#raster::cv(SP500$Price)/ SP500_3$cumulative
+#raster::cv(ETH$Price)/ ETH3$cumulative
+#raster::cv(VIX$Price)/ VIX3$cumulative
+
+```
+
+### Risk Assessment and Correlation
+
+A part of the overall evaluation in the particular investments and one of our initial questions involve an assessment of risk. What is the undertaken risk when investing in these assets?
+To measure the risk of an investment there are several statistical and financial methods available. The methodology chosen for risk assessment of the above-mentioned assets in this report have been through coefficient of variation. This measures the dispersion of the data from its mean. The coefficient of variation is helpful to determine the amount of risk and volatility. 
+
+A high coefficient of variation indicates an asset that has higher degree of volatility. Such an investment would be suitable for a risk-taking investor. On the contrary a low coefficient of variation point to an asset with historically a low degree of risk. Suitable for a risk adverse investor. 
+In the analysis the coefficient of variation are relative measurements. This places the values on a range from 0-100.
+
+Correlation is a statistical measurement calculating the degree two variables move in relation to each other. Perfect correlation would indicate that the assets move in lockstep, one following the other. A perfect negative correlation would result in the assets moving in the exact opposite direction. The values of the correlation coefficient ranges between -1 to 1.  If the coefficient has a value of 0 it would suggest that the assets have no correlation.
+
+
+&nbsp;
+&nbsp;
+
+#### 2016-2020
+
+**Coefficient of variation Bitcoin:** `r raster::cv(BTC$Price) ` 
+
+**Coefficient of variation Ethereum:** `r raster::cv(ETH$Price) ` 
+
+**Coefficient of variation Gold:** `r raster::cv(Gold$Price) ` 
+
+**Coefficient of variation  S&P500:** `r raster::cv(SP500$Price) ` 
+
+
+When calculating the coefficients of variation of the assets in the entire period it becomes evident that both Bitcoin and Ethereum have a high degree of volatility. The initially lucrative rates of return come with associated risks. Gold and the S&P 500 have substantially lower coefficient of variation, indicating a greater degree of stability. It is worth noting that coefficient of variation of gold and the S&P 500 are nearly equivalent. Thus being similar in the amount of risk. 
+
+&nbsp;
+&nbsp;
+
+#### Risk reward 2016-2020
+
+**Risk/reward Bitcoin:** `r raster::cv(BTC$Price)/BTC3$cumulative ` 
+
+**Risk/reward Gold:** `r raster::cv(Gold$Price)/Gold3$cumulative ` 
+
+**Risk/reward S&P500:** `r raster::cv(SP500$Price)/SP500_3$cumulative ` 
+
+**Risk/reward Ethereum:** `r raster::cv(ETH$Price)/ETH3$cumulative ` 
+
+**Risk/reward VIX:** `r raster::cv(VIX$Price)/VIX3$cumulative ` 
+
+Risk reward is calculated by taking CV/asset return.
+
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+
+```{r message=FALSE, echo=FALSE, warning=FALSE}
+
+### Rolling and static correlation 2016-2020
+
+# Making data long and selecting columns
+df3 <- bind_rows(ETH,BTC,Gold,VIX) %>% select(week,Price,Asset)
+# Selecting columns
+SP500_1 <- SP500 %>% select(week,Price)
+
+# Asset Returns
+df3 <- df3 %>%
+  group_by(Asset) %>%
+  tq_transmute(select     = Price, 
+               mutate_fun = periodReturn,
+               period     = "weekly")
+
+# Baseline Returns
+SP500_1 <- SP500_1 %>%
+  tq_transmute(select     = Price, 
+               mutate_fun = periodReturn,
+               period     = "weekly")
+
+# Correlation table
+tidyverse_static_correlations2 <- df3 %>%
+  # Data wrangling
+  spread(key = Asset, value = weekly.returns) %>%
+  left_join(SP500_1, by = "week") %>%
+  rename(SP500 = weekly.returns) %>%
+  select(-week) %>%
+  # Correlation and formating
+  correlate() 
+
+# Get rolling correlations
+tidyverse_rolling_corr2 <- df3 %>%
+  # Data wrangling
+  left_join(SP500_1, by = "week") %>%
+  select(week,Asset, weekly.returns.x, weekly.returns.y ) %>%
+  # Mutation
+  tq_mutate_xy(
+    x          = weekly.returns.x,
+    y          = weekly.returns.y,
+    mutate_fun = runCor, 
+    # runCor args
+    n          = 12,
+    use        = "pairwise.complete.obs",
+    # tq_mutate args
+    col_rename = "rolling_corr"
+  )
+
+# Wrangling static correlation
+tidyverse_static_correlations2 <- tidyverse_static_correlations2 %>%
+  select(term, SP500) %>%
+  rename(Asset = term)
+
+# Left joining the static correlation to the rolling correlation df
+tidyverse_rolling_corr2 <- tidyverse_rolling_corr2 %>%
+  left_join(tidyverse_static_correlations2, by = "Asset") %>%
+  rename(static_corr = SP500)
+
+# Plot
+tidyverse_rolling_corr2 %>%
+  ggplot(aes(x = week, color = Asset)) +
+  # Data
+  geom_line(aes(y = static_corr), color = "red") +
+  geom_line(aes(y = rolling_corr), alpha = 0.5) +
+  facet_wrap(~ Asset, ncol = 2, scales = "free_y") +
+  # Aesthetics
+  scale_color_tq() +
+  labs(
+    title = " S&P500: 12-Weeks Rolling Correlations, SP500 vs assets",
+    subtitle = "Relationships are dynamic vs static correlation (red line)",
+    x = "", y = "Correlation"
+  ) +
+  theme_tq() +
+  theme(legend.position="none")
+
+```
+
+```{r message=FALSE, echo=FALSE, warning=FALSE}
+# Remove N/A values
+tidyverse_static_correlations2 <- na.omit(tidyverse_static_correlations2)
+# Wrangling
+tidyverse_static_correlations2 <- tidyverse_static_correlations2 %>% rename(Static_correlation= "SP500")
+# Making table of static correlations 2016-2020
+knitr::kable(tidyverse_static_correlations2)
+```
+
+
+```{r message=FALSE, echo=FALSE, warning=FALSE}
+
+###Asset return for 2020
+
+# ETH Returns
+ETH4 <- ETH2020 %>%
+  tq_transmute(select     = Price, 
+               mutate_fun = periodReturn,
+               period     = "weekly") %>% mutate(cumulative = cumsum(weekly.returns)) %>% 
+  # filter for only the last observation
+  filter(row_number() >= (n() - 0)) 
+
+# BTC Returns
+BTC4 <- BTC2020 %>%
+  tq_transmute(select     = Price, 
+               mutate_fun = periodReturn,
+               period     = "weekly") %>% mutate(cumulative = cumsum(weekly.returns)) %>% 
+  # filter for only the last observation
+  filter(row_number() >= (n() - 0)) 
+
+# Gold Returns
+Gold4 <- Gold2020 %>%
+  tq_transmute(select     = Price, 
+               mutate_fun = periodReturn,
+               period     = "weekly") %>% mutate(cumulative = cumsum(weekly.returns)) %>% 
+  # filter for only the last observation
+  filter(row_number() >= (n() - 0)) 
+
+# SP500 Returns
+SP500_4 <- SP500_2020 %>%
+  tq_transmute(select     = Price, 
+               mutate_fun = periodReturn,
+               period     = "weekly") %>% mutate(cumulative = cumsum(weekly.returns)) %>% 
+  # filter for only the last observation
+  filter(row_number() >= (n() - 0)) 
+
+# VIX Returns
+VIX4 <- VIX2020 %>%
+  tq_transmute(select     = Price, 
+               mutate_fun = periodReturn,
+               period     = "weekly") %>% mutate(cumulative = cumsum(weekly.returns)) %>% 
+  # filter for only the last observation
+  filter(row_number() >= (n() - 0)) 
+
+
+```
+
+
+
+&nbsp;
+
+
+#### 2020
+
+**Coefficient of variation Bitcoin:** `r raster::cv(BTC2020$Price) ` 
+
+**Coefficient of variation Ethereum:** `r raster::cv(ETH2020$Price) ` 
+
+**Coefficient of variation Gold:** `r raster::cv(Gold2020$Price) ` 
+
+**Coefficient of variation S&P500:** `r raster::cv(SP500_2020$Price) ` 
+
+&nbsp;
+&nbsp;
+
+When only looking at the year 2020 it shows lower coefficients of variation on all investments, it shows that every value has been lowered compared to the 2016-2020 period. 2020 has been a year of greater stability for cryptocurrencies despite being impacted by the pandemic. This might be the result of the fact that cryptocurrencies is a fairly new asset that only has been around for approximately ten years and is still maturing, and probably not the pandemic making it increasingly stable. As for the S&P 500 measuring lower risk might be surprising. Also visible from the “2020 cumulative graph” markets may have not been as volatile as initially expected during the pandemic.
+ 
+&nbsp;
+
+#### Risk reward 2020
+
+**Risk/reward Bitcoin:** `r raster::cv(BTC2020$Price)/BTC4$cumulative ` 
+
+**Risk/reward Gold:** `r raster::cv(Gold2020$Price)/Gold4$cumulative ` 
+
+**Risk/reward S&P500:** `r raster::cv(SP500_2020$Price)/SP500_4$cumulative ` 
+
+**Risk/reward Ethereum:** `r raster::cv(ETH2020$Price)/ETH4$cumulative ` 
+
+**Risk/reward VIX:** `r raster::cv(VIX2020$Price)/VIX4$cumulative ` 
+
+&nbsp;
+
+These graphs are showing Correlation between weekly-return.
+
+
+```{r message=FALSE, echo=FALSE, warning=FALSE}
+
+### Rolling and static correlation 2020
+
+# Correlation table
+tidyverse_static_correlations3 <- df3 %>% filter(week>= "2020-01-01") %>%
+  # Data wrangling
+  spread(key = Asset, value = weekly.returns) %>%
+  left_join(SP500_1, by = "week") %>%
+  rename(SP500 = weekly.returns) %>%
+  select(-week) %>%
+  # Correlation and formating
+  correlate() 
+
+# Get rolling correlations
+tidyverse_rolling_corr3 <- df3 %>% filter(week>= "2020-01-01") %>%
+  # Data wrangling
+  left_join(SP500_1, by = "week") %>%
+  select(week,Asset, weekly.returns.x, weekly.returns.y ) %>%
+  # Mutation
+  tq_mutate_xy(
+    x          = weekly.returns.x,
+    y          = weekly.returns.y,
+    mutate_fun = runCor, 
+    # runCor args
+    n          = 4,
+    use        = "pairwise.complete.obs",
+    # tq_mutate args
+    col_rename = "rolling_corr"
+  )
+
+# Join static correlations with rolling correlations
+tidyverse_static_correlations3 <- tidyverse_static_correlations3 %>%
+  select(term, SP500) %>%
+  rename(Asset = term)
+
+tidyverse_rolling_corr3 <- tidyverse_rolling_corr3 %>%
+  left_join(tidyverse_static_correlations3, by = "Asset") %>%
+  rename(static_corr = SP500)
+
+# Plot
+tidyverse_rolling_corr3 %>%
+  ggplot(aes(x = week, color = Asset)) +
+  # Data
+  geom_line(aes(y = static_corr), color = "red") +
+  geom_line(aes(y = rolling_corr), alpha = 0.5) +
+  facet_wrap(~ Asset, ncol = 2, scales = "free_y") +
+  # Aesthetics
+  scale_color_tq() +
+  labs(
+    title = "S&P500: 4-Weeks Rolling Correlations, S&P500 vs different assets",
+    subtitle = "Relationships are dynamic vs static correlation (red line)",
+    x = "", y = "Correlation"
+  ) +
+  theme_tq() +
+  theme(legend.position="none")
+
+```
+
+```{r message=FALSE, echo=FALSE, warning=FALSE}
+# Removing N/A values
+tidyverse_static_correlations3 <- na.omit(tidyverse_static_correlations3)
+# Wrangling
+tidyverse_static_correlations3 <- tidyverse_static_correlations3 %>% rename(Static_correlation = "SP500")
+# Making table of static correlations
+knitr::kable(tidyverse_static_correlations3)
+```
+
+Looking at the correlation for 2020, we have compared all assets to the S&P 500 index. While looking at the graph of correlations for 2020, Bitcoin has a higher static correlation than Gold towards S&P 500. Correlation can not only be observed static, because the correlation is in motion all the time. Looking at the rolling correlations it becomes obvious that gold was actually around -0,2 correlated in April 2020 when the economical impact of covid-19 hit the western world. At the same time Bitcoin positively correlated about 0,1. So in that sense it was more profitable to hold gold at that time as is also visible in the cumulative graph. Throughout 2020 we can see Bitcoin at times turning more uncorrelated, especially towards the end of the year. 
+
+It is challenging to give a clear answer to the best asset for diversification when looking at the rolling correlation. Gold for the majority of the time is less correlated to the S & P 500 index than Bitcoin. In regards to correlation gold looks to be the better option for risk diversification. 
+
+
+&nbsp;
+&nbsp;
+&nbsp;
+
+
+### Is bitcoin a safe haven asset?
+
+The safe haven properties of bitcoin have already been established. Bitcoin fulfils the characteristics of a safe haven asset. Yet the question whether bitcoin acted as a safe haven during the covid-19 recession remains unanswered. A safe haven asset should act oppositely of other financial assets in turbulent times and have an inverse correlation.
+Did Bitcoin act in such a way in 2020?
+
+&nbsp;
+&nbsp;
+
+```{r message=FALSE, echo=FALSE}
+
+# Plotting. 
+df2 %>% 
+  ggplot(aes(x=week, y=cumulative, group=Asset)) +
+  geom_line(aes(color=Asset))+
+  ylab(expression("Cumulative Return")) +
+  xlab("Date") +
+  labs(title = "Cumulative Logarithmic Return 2020",
+       subtitle = "Graph: Weekly data",
+       caption = "")+theme(plot.title = element_text(hjust = 0.5))
+
+```
+
+The cumulative logarithmic returns of bitcoin, gold and the S&P 500 are visualised in the plot above. By first looking at gold it acted as a safe haven, increasing in value and having stable rates of return throughout the market downturn. Proving to be a good asset for risk diversification. 
+
+Bitcoin on the other hand had a severe drop in performance in the same interval, even surpassing the S&P 500. Illustrating that Bitcoin generally correlates with the overall economy. Indicating bitcoin investments may increase portfolio risk.
+This visualisation gives a clear overview on how bitcoin acted during the recession and demonstrates that the asset did not perform as a safe haven in the considered period.
+
+It is worth noting that bitcoin has had a remarkable comeback during the latter part of 2020. As the S&P 500 continues to fluctuate bitcoin has shown a steady rise. Surpassing the peak of 2017. The resurgence primarily involves aspects not included in this report, such as the weakening of other hard currencies. Further testamenting to bitcoins potential. 
+
+
+&nbsp;
+&nbsp;
+&nbsp;
+
+### Who invests in Bitcoin?
+
+A question that was set to be answered as a part of the overall evaluation of bitcoin who the investors in bitcoin are. At first glance it would seem an impossible task but by placing bitcoin investors into categories and with some assumptions it might be answered. We have chosen specifically two categories all bitcoin investors from 2016-2020 can fall into.
+ 
+Amateur investors who have little understanding of the utilization of bitcoin other than it potentially being a profitable investment. They have a fear of missing out and are jumping the bandwagon.In the other category are professional investors. These particular investors have done a proper evaluation of Bitcoin as an asset, understanding its utilization and overall value.  
+
+With the assumption that the amount of google searches on the word bitcoin correlates to which of the two categories the majority of bitcoin investors fall into, it is possible to determine who the investors are.
+
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+
+```{r message=FALSE, echo=FALSE}
+#define the keywords
+keywords=c("Bitcoin")
+#set the geographic area: DE = Germany
+country=c('')
+# Setting time frame
+time = ("today+5-y")
+#set channels 
+channel='web'
+# Pulling the data from google
+trends = gtrends(keywords, gprop =channel,geo=country, time = time )
+#select only interest over time 
+time_trend=trends$interest_over_time
+
+time_trend <- time_trend %>% select(date,hits,keyword) %>% rename(Date ="date", Price = "hits", Asset = "keyword") %>% filter(Date>= "2016-01-04")
+
+
+#####################################################################
+
+BTC2<-BTC %>% mutate(Asset="Bitcoin Price")
+BTC2$week <- as.POSIXct(paste(BTC2$week, BTC2$Time), format="%Y-%m-%d")
+
+# Making monthly data
+BTC2$month <- floor_date(BTC2$week, "month")
+# Grouping then new variable month and taking the mean to get monthly price
+BTC2 <- BTC2 %>%
+  group_by(month) %>%
+  summarize(mean = mean(Price))
+
+# Making numeric
+time_trend$Price <- as.numeric(time_trend$Price)
+
+# Making monthly data
+time_trend$month <- floor_date(time_trend$Date, "month")
+
+# Grouping then new variable week and taking the mean to get monthly price
+time_trend <- time_trend %>%
+  group_by(month) %>%
+  summarize(mean = mean(Price))
+
+# Making google search fit the scale on the graph
+time_trend<-time_trend %>%mutate(mean= mean*200 )
+# Naming assets
+time_trend <- time_trend %>% mutate(Asset = "Google Search ")
+# Naming assets
+BTC2 <- BTC2 %>% mutate(Asset = "Bitcoin Price")
+
+# Changing name on time_trend from date to week
+names(time_trend)[names(time_trend) == 'Date'] <- 'week' 
+# Making data long
+test26<- rbind(BTC2,time_trend)
+# Plotting
+vs<-test26 %>% 
+  ggplot(aes(x=month, y=mean, group=Asset)) +
+  geom_line(aes(color=Asset))+
+  ylab(expression("Bitcoin Price $")) +
+  xlab("Date") +
+  labs(title = "Bitcoin Price vs Google Searches ",
+       subtitle = "Graph: Monthly data",
+       caption = "")+theme(plot.title = element_text(hjust = 0.5))
+vs<-vs+ scale_y_continuous(sec.axis = sec_axis(~./200, name = "")) # adds one more y scale,to compare search and price
+vs
+
+```
+
+By producing a plot over the period and placing the amount of google searches and including the development of the price of bitcoin in the same period and studying the correlation of the curves the investors can be identified. In 2017 the public became aware of bitcoin and received massive attention in the media. This brought a significant increase in the amount of google searches and demand.
+During the first two year of the period the bitcoin price has an exponential increase. The google searches in the same period are strongly aligned with the price and follow the same trajectory. Under the assumptions made the majority of investors in this period falls into the category of amateur investors. After the initial hype over the course of 2017 the number of searches fell along with the price. The amateur investors were leaving the market.
+From 2019 and forwards the price started to increase again, this time the price increase was not correlated with google searches to the same degree indicating that the majority of the investors were professional.
+
+&nbsp;
+&nbsp;
+&nbsp;
+
+### Conclusion
+
+Through the use of data science and statistical methods this report has provided an overall analysis of Bitcoin and alternative investments. With the goal to get a better understanding of Bitcoin as an investment and examining its safe haven properties. This was done by looking at Bitcoins cumulative growth and returns compared to other assets over the period 2016-2020. Then considering how these returns would be affected when isolating specific time intervals within the overall period. 
+As well as doing an assessment of the risk involved in the assets relative to the rates of return. Finally examining how the price of bitcoin relates to the amount of google searches on Bitcoin. 
+
+Over the four-year period Bitcoin has proven to be a profitable investment. Increasing substantially during the first half of the period, then effectively becoming more consistent. The returns have come with a level of risk. A risk far beyond gold and the S&P 500.
+The cryptocurrency market is still highly speculative and unregulated. There is no underlying hard asset or sovereign entity upholding its value.
+
+We have established that Bitcoin is best suited for risk takers. However these risk takers have evolved from amateur investors into calculated professionals.  
+
+The COVID-19 pandemic presented an initial testing ground for Bitcoin as a safe haven asset.
+Our analysis illustrates bitcoins performance during the recent recession and discredits the initial claim of Bitcoin being a safe haven asset. Bitcoin as well as other cryptocurrencies responded to economic trends following the same pattern as the overall economy. Yet the perceived resurgence highlights that bitcoin can benefit when other financial markets are turbulent. 
+
+Despite this report being unhelpful for all the unfortunate investors that were impacted by the COVID-19 pandemic, it provides valuable insight towards future economic recessions. While proving that bitcoin did not act as a safe haven asset it showed an astounding recovery.  Further certifying Bitcoins potential as an investment.  
+
+&nbsp;
+&nbsp;
+
+**Statistical analysis:**
+
+![Correlation test SP500 vs Gold:All years](https://lh3.googleusercontent.com/pw/ACtC-3fYdAtfN8FCsniuXg6cwrV46jbiyHbqZnNgb6S3MT8REdIpi_bLA0VRjCJhRQLZ9OLDxUpo7W8NisHy5Wud7gVBUtegfptlxCHfY-NriwWZp-AqtyEed5GPUzgbuPO5sEpRMfQPSUbsMnVfYAYRLbI=w1582-h364-no?authuser=0)
+
+If we look at the correlation test between returns of S&P 500 and Gold. Then we can see the t-value is barely over 2, this supports that the zero-hypothesis can be rejected (in this case the zero-hyptosis would be that there is no correlation between the assets). The p-value is close to 4% so this supports that our results are not happening by chance and then also in favor of rejecting the zero-hypothesis. Lastly we need to look at the confidence intervals. We can see that the highest interval is around 24,5% and this indicates that the estimation procedure has a low probability of being correct. This means that from statistical rules we most likely couldn't use this data or trust the calculations of the static correlations.
+
+For the correlation between bitcoin and gold the numbers are even worse. The t-stat is under 2, p-value is over 5% and the confidence intervals are even lower. So this correlation can be even less trusted than the first mentioned. 
+
+So to sum up this statistical analysis, we can be pretty sure that there is correlation but there is low probability that the estimated correlation is correct.
+
+
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+
+
+We where not able to run this Rmarkdown in the online edition for some unknown reason.
+
+It can be a problem kniting this Rmarkdown on the weekendays and until the stock market closes on Monday, since there will be added new data during the weekend for Bitcoin and Ethereum and not for the traditional markets since those are closed. That means that it will be added one more observation for the crypto assets and can cause errors kniting. 
+
+### Sources
+
+###### Quandl API - Gold Prices
+https://www.quandl.com/data/LBMA/GOLD-Gold-Price-London-Fixing
+
+###### Bitcoin
+https://finance.yahoo.com/quote/BTC-USD/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
+
+###### Ethereum
+https://finance.yahoo.com/quote/ETH-USD/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
+
+###### Gold
+https://finance.yahoo.com/quote/GC%3DF/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
+
+###### VIX
+https://finance.yahoo.com/quote/%5EVIX/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
+
+###### S&P500
+https://finance.yahoo.com/quote/%5EGSPC/history?period1=1446768000&period2=1604620800&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true
+
+###### Picture source
+https://www.forbes.com/sites/forbesfinancecouncil/2018/12/05/the-top-10-risks-of-bitcoin-investing-and-how-to-avoid-them/?sh=55fff8a52407
+
+###### Additional Source Material
+
+https://www.venn.twosigma.com/vennsights/five-safe-haven-assets
+
+https://edition.cnn.com/2020/11/18/investing/bitcoin-prices-rally/index.html
+
+https://www.sciencedirect.com/science/article/pii/S1544612320304244#bib0015
+
+https://corporatefinanceinstitute.com/resources/knowledge/trading-investing/safe-haven/
+
+https://twitter.com/tyler/status/1232875921025249280
+
+
