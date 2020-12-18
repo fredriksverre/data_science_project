@@ -13,9 +13,11 @@ https://www.youtube.com/watch?v=j8CjwCs5jvE&t=3s
 
 We where not able to run this Rmarkdown in the Rstudio online edition for some unknown reason.
 
-It has been a problem running this Rmarkdown on the weekend and until the stock market closes on Monday, since there will be added new data during the weekend for Bitcoin and Ethereum and not for the traditional markets since those are closed. That means that it will be added one more observation for the crypto assets and can cause errors kniting or "running" since its in shiny. But we tried to fix this. 
-
+It has been a problem running this Rmarkdown on the weekend and until the stock market closes on Monday, since there will be added new data during the weekend for Bitcoin and Ethereum and not for the traditional markets since those are closed. That means that it will be added one more observation for the crypto assets and can cause errors kniting or "running" since its in shiny. But we tried to fix this. It is not possible to run the code more than 50times per day because of the "free" limits on the API. 
+ 
 Since the Rmd file is Runtime:shiny it is not possible to knit it to HTML file. 
+
+
 
 
 ### Project data sources:
