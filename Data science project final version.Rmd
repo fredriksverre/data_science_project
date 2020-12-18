@@ -47,8 +47,9 @@ https://corporatefinanceinstitute.com/resources/knowledge/trading-investing/safe
 
 https://twitter.com/tyler/status/1232875921025249280
 -->
-
-
+<!---
+Her is a link to our screencast: https://www.youtube.com/watch?v=j8CjwCs5jvE&t=3s
+-->
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
