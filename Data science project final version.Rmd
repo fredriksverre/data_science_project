@@ -342,8 +342,10 @@ An obstacle when comparing cryptocurrency markets to other financial markets is 
 
 The data frame from the London Bullion Market contained several N/A values. Removing these was done with the omit function. 
 
-To visualise the rate of returns cumulatively it was necessary to calculate the logarithmic returns each week. By dividing the log of the first observation by the log of the following observation. (Log observation 1/ log observation 2). Then recreating the data frame using cbind. To do this it was necessary to use rbind function to enter an observation zero, to be able to connect the original data frame with the logarithmic returns. 
+To visualize the rate of returns cumulatively it was necessary to calculate the logarithmic returns each week. By dividing the log of the first observation by the log of the following observation. (Log observation 1/ log observation 2). Then recreating the data frame using cbind. To do this it was necessary to use rbind function to enter an observation zero, to be able to connect the original data frame with the logarithmic returns. 
 Eventually using the cumsum function to summarise all grouped assets up against the logarithmic returns. Now all the data is cumulative, and it is possible to compare the returns of each asset.
+
+The risk/rewards ratio was calculated with taking the coefficient of variation and dividing it on the return of the asset.
 
 &nbsp;
 &nbsp;
