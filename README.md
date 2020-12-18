@@ -1,5 +1,4 @@
-# data_science_project
-Data Science Project // Exam
+# Data science project BED-2056
 
 ## This is our data science project "Can Bitcoin be a safe haven in a recession?"
 We are three economics students who made this project in the subject BED-2056 and this is our final project. 
@@ -10,13 +9,11 @@ We where not able to run this Rmarkdown in the online edition for some unknown r
 
 It has can be a problem running this Rmarkdown on the weekendays and until the stock market closes on Monday, since there will be added new data during the weekend for Bitcoin and Ethereum and not for the traditional markets since those are closed. That means that it will be added one more observation for the crypto assets and can cause errors kniting or "running" since its in shiny. But we tried to fix this. 
 
-Since the Rmd file is Runtinme:shiny it is not possible to knit it to HTML file. 
+Since the Rmd file is Runtime:shiny it is not possible to knit it to HTML file. 
 
 
 
-
-
-### Project data sourses:
+### Project data sources:
 
 ###### Quandl API - Gold Prices
 https://www.quandl.com/data/LBMA/GOLD-Gold-Price-London-Fixing
