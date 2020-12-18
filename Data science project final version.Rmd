@@ -924,11 +924,6 @@ So to sum up this statistical analysis, we can be pretty sure that there is corr
 &nbsp;
 &nbsp;
 
-
-We where not able to run this Rmarkdown in the online edition for some unknown reason.
-
-It can be a problem kniting this Rmarkdown on the weekendays and until the stock market closes on Monday, since there will be added new data during the weekend for Bitcoin and Ethereum and not for the traditional markets since those are closed. That means that it will be added one more observation for the crypto assets and can cause errors kniting. 
-
 ### Sources
 
 ###### Quandl API - Gold Prices
